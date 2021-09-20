@@ -1,16 +1,16 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:your_music/utils/routes/routes.dart';
 
 class AuthProvider extends ChangeNotifier {
   //
+  bool _isLogin = false;
+  bool get isLogin => _isLogin;
 
-  bool _isObscured = true;
-  bool get isObscured => _isObscured;
-  void togglePassword() {
-    _isObscured = !_isObscured;
-    notifyListeners();
-  }
-
-  Future<void> login(String username, String password) async {
+  Future<void> login(BuildContext context, String username, String password) async {
     debugPrint('$username - $password');
+    _isLogin = true;
+    Navigator.pushReplacementNamed(context, Routes.home);
+    notifyListeners();
   }
 }
