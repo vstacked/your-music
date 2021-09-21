@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:your_music/constants/app_theme.dart';
+import 'package:your_music/providers/auth_provider.dart';
 import 'package:your_music/utils/routes/observer.dart';
 import 'package:your_music/utils/routes/routes.dart';
 
@@ -10,12 +12,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Your Music',
-      theme: darkTheme,
-      navigatorKey: navigatorKey,
-      routes: Routes.routes,
-      navigatorObservers: [Observer()],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Your Music',
+        theme: darkTheme,
+        navigatorKey: navigatorKey,
+        routes: Routes.routes,
+        navigatorObservers: [Observer()],
+      ),
     );
   }
 }
