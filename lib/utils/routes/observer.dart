@@ -14,7 +14,7 @@ class Observer extends NavigatorObserver {
 
   void _routeHistory() => log(_routeStack.map((e) => e.settings.name).toList().toString());
 
-  void _pushRemoveWithoutAnimation(Widget child, {required String routes, required String until}) {
+  void _pushRemoveWithoutAnimation(Widget child, {required String routes}) {
     Future.microtask(() {
       navigator!.pushAndRemoveUntil(
         PageRouteBuilder(
@@ -22,8 +22,7 @@ class Observer extends NavigatorObserver {
           transitionDuration: Duration.zero,
           settings: RouteSettings(name: routes),
         ),
-        // (_) => false,
-        ModalRoute.withName(until),
+        (_) => false,
       );
     });
   }
@@ -33,9 +32,9 @@ class Observer extends NavigatorObserver {
     bool isLogin = navigatorKey.currentContext!.read<AuthProvider>().isLogin;
 
     if (route.settings.name != Routes.login && !isLogin) {
-      _pushRemoveWithoutAnimation(const Login(), routes: Routes.login, until: Routes.home);
+      _pushRemoveWithoutAnimation(const Login(), routes: Routes.login);
     } else if (route.settings.name == Routes.login && isLogin) {
-      _pushRemoveWithoutAnimation(const Home(), routes: Routes.home, until: Routes.login);
+      _pushRemoveWithoutAnimation(const Home(), routes: Routes.home);
     }
 
     _routeStack.add(route);
