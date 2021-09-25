@@ -1,25 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:your_music/constants/colors.dart';
+import 'package:your_music/ui/web/home/widgets/sidebar.dart';
+import 'package:your_music/ui/web/home/widgets/tab_home.dart';
 
-class Home extends StatefulWidget {
+final scaffoldKey = GlobalKey<ScaffoldState>();
+
+class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
-  _HomeState createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
-      floatingActionButton: FloatingActionButton(
-        child: const Text('Floating Action'),
-        onPressed: () {},
+    return DefaultTabController(
+      length: 1,
+      child: Scaffold(
+        key: scaffoldKey,
+        drawer: const SmallSidebar(),
+        drawerScrimColor: overlayColor,
+        body: Row(
+          children: const <Widget>[
+            Sidebar(),
+            Expanded(
+              child: RotatedBox(
+                quarterTurns: 1,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: TabBarView(physics: NeverScrollableScrollPhysics(), children: <Widget>[TabHome()]),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
