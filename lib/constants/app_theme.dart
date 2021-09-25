@@ -7,5 +7,10 @@ final darkTheme = ThemeData(
   primaryColor: primaryColor,
   accentColor: secondaryColor,
   scaffoldBackgroundColor: secondaryColor,
+  checkboxTheme: CheckboxThemeData(
+    side: const BorderSide(color: redColor, width: 2),
+    checkColor: MaterialStateProperty.all(redColor),
+    fillColor: MaterialStateProperty.all(Colors.white),
+  ),
   primarySwatch: generateMaterialColor(greyColor),
 );
