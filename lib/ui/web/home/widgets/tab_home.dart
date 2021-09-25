@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:your_music/constants/colors.dart';
+import 'package:your_music/ui/web/home/widgets/dialogs.dart';
 import 'package:your_music/widgets/icon_button_widget.dart';
 import 'package:your_music/widgets/responsive_layout.dart';
 
@@ -13,7 +14,7 @@ class TabHome extends StatefulWidget {
 }
 
 class _TabHomeState extends State<TabHome> {
-  bool isOutlinedDelete = true;
+  bool isOutlinedDelete = false;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -37,6 +38,9 @@ class _TabHomeState extends State<TabHome> {
                       isOutlinedButton: isOutlinedDelete,
                       color: redColor,
                       onPressed: () {
+                        if (isOutlinedDelete) {
+                          showDialog(context: context, builder: deleteSong, barrierColor: overlayColor);
+                        }
                         setState(() {
                           isOutlinedDelete = !isOutlinedDelete;
                         });
