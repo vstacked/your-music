@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:your_music/constants/app_theme.dart';
 import 'package:your_music/providers/auth_provider.dart';
+import 'package:your_music/providers/song_provider.dart';
 import 'package:your_music/utils/routes/observer.dart';
 import 'package:your_music/utils/routes/routes.dart';
 
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => SongProvider()),
       ],
       child: MaterialApp(
         title: 'Your Music',
