@@ -8,6 +8,7 @@ class IconButtonWidget extends StatelessWidget {
     required this.onPressed,
     this.isOutlinedButton = false,
     this.buttonText = '',
+    this.iconSize = 35,
   }) : super(key: key);
 
   final Icon icon;
@@ -15,6 +16,7 @@ class IconButtonWidget extends StatelessWidget {
   final Color color;
   final bool isOutlinedButton;
   final String buttonText;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,6 @@ class IconButtonWidget extends StatelessWidget {
       );
     }
 
-    return IconButton(onPressed: onPressed, icon: icon, color: color, iconSize: 35, splashRadius: 30);
+    return IconButton(onPressed: onPressed, icon: icon, color: color, iconSize: iconSize, splashRadius: 30);
   }
 }
