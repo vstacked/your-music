@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:your_music/constants/colors.dart';
 import 'package:your_music/ui/web/home/widgets/sidebar.dart';
 import 'package:your_music/ui/web/home/widgets/tab_home.dart';
+import 'widgets/right_sidebar.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -15,6 +16,7 @@ class Home extends StatelessWidget {
       child: Scaffold(
         key: scaffoldKey,
         drawer: const SmallSidebar(),
+        endDrawer: const SmallRightSidebar(),
         drawerScrimColor: overlayColor,
         body: Row(
           children: const <Widget>[
@@ -28,6 +30,7 @@ class Home extends StatelessWidget {
                 ),
               ),
             ),
+            RightSideBar()
           ],
         ),
       ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:your_music/constants/colors.dart';
+import 'package:your_music/providers/song_provider.dart';
 
 AlertDialog deleteSong(BuildContext context) {
   return AlertDialog(
@@ -11,7 +13,12 @@ AlertDialog deleteSong(BuildContext context) {
     contentTextStyle: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
     actions: [
       OutlinedButton(
-        onPressed: () => Navigator.pop(context),
+        onPressed: () {
+          final _read = context.read<SongProvider>();
+          _read.clearRemoveIds();
+          _read.setRemove(false);
+          Navigator.pop(context);
+        },
         child: const Text('Cancel'),
         style: ButtonStyle(
           fixedSize: MaterialStateProperty.all(const Size(80, 35)),
