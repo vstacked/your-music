@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:your_music/constants/colors.dart';
 import 'package:your_music/ui/web/home/widgets/sidebar.dart';
 import 'package:your_music/ui/web/home/widgets/tab_home.dart';
+import 'widgets/queue.dart';
 import 'widgets/right_sidebar.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -18,19 +20,24 @@ class Home extends StatelessWidget {
         drawer: const SmallSidebar(),
         endDrawer: const SmallRightSidebar(),
         drawerScrimColor: overlayColor,
-        body: Row(
-          children: const <Widget>[
-            Sidebar(),
-            Expanded(
-              child: RotatedBox(
-                quarterTurns: 1,
-                child: SizedBox(
-                  width: double.infinity,
-                  child: TabBarView(physics: NeverScrollableScrollPhysics(), children: <Widget>[TabHome()]),
+        body: Stack(
+          children: [
+            Row(
+              children: const <Widget>[
+                Sidebar(),
+                Expanded(
+                  child: RotatedBox(
+                    quarterTurns: 1,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: TabBarView(physics: NeverScrollableScrollPhysics(), children: <Widget>[TabHome()]),
+                    ),
+                  ),
                 ),
-              ),
+                RightSideBar()
+              ],
             ),
-            RightSideBar()
+            const Queue()
           ],
         ),
       ),
