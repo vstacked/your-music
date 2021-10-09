@@ -51,7 +51,14 @@ class TabHome extends StatelessWidget {
                     IconButtonWidget(
                       icon: const Icon(Icons.upload),
                       color: greenColor,
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          barrierColor: overlayColor,
+                          routeSettings: const RouteSettings(name: '/addSongDialog'),
+                          builder: addSong,
+                        );
+                      },
                     ),
                   ],
                 ),

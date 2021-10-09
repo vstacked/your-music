@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:your_music/constants/colors.dart';
 import 'package:your_music/providers/song_provider.dart';
 import 'package:your_music/ui/web/home/home.dart';
+import 'package:your_music/ui/web/home/widgets/dialogs.dart';
 import 'package:your_music/utils/routes/routes.dart';
 import 'package:your_music/widgets/icon_button_widget.dart';
 import 'package:readmore/readmore.dart';
@@ -88,7 +89,14 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                   icon: const Icon(Icons.mode_edit_outline_outlined),
                   iconSize: 30,
                   color: blueColor,
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      barrierColor: overlayColor,
+                      routeSettings: const RouteSettings(name: '/editSongDialog'),
+                      builder: editSong,
+                    );
+                  },
                 ),
                 IconButtonWidget(
                   icon: const Icon(Icons.close),
