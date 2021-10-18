@@ -60,6 +60,7 @@ class _LoginState extends State<Login> {
                       controller: _usernameController,
                       onChanged: (_) {
                         _formKey.currentState!.validate();
+                        setState(() {});
                       },
                     ),
                     const SizedBox(height: 10),
@@ -69,6 +70,7 @@ class _LoginState extends State<Login> {
                       controller: _passwordController,
                       onChanged: (_) {
                         _formKey.currentState!.validate();
+                        setState(() {});
                       },
                       onSubmitted: (_) {
                         if (_formKey.currentState!.validate()) {
@@ -78,11 +80,13 @@ class _LoginState extends State<Login> {
                     ),
                     const SizedBox(height: 30),
                     ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _authProviderRead.login(context, _usernameController.text, _passwordController.text);
-                        }
-                      },
+                      onPressed: (_usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty)
+                          ? () {
+                              if (_formKey.currentState!.validate()) {
+                                _authProviderRead.login(context, _usernameController.text, _passwordController.text);
+                              }
+                            }
+                          : null,
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(blueColor),
                         fixedSize: MaterialStateProperty.all(const Size(169, 56)),
