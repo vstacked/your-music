@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
             providers: [
-              ChangeNotifierProvider(create: (_) => AuthProvider()),
+              if (kIsWeb) ChangeNotifierProvider(create: (_) => AuthProvider()),
               ChangeNotifierProvider(create: (_) => SongProvider()),
             ],
             child: MaterialApp(
