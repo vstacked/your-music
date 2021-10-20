@@ -97,7 +97,7 @@ Widget songDialog({bool isEditSong = false, SongModel? songModel}) {
                                     errorText: _songEmpty,
                                     songName: _songModel.songPlatformFile != null
                                         ? _songModel.songPlatformFile?.name
-                                        : _songModel.song?.path,
+                                        : _songModel.song,
                                     result: (data) {
                                       _songModel.songPlatformFile = data;
                                       state(() {});
@@ -212,9 +212,8 @@ Widget songDialog({bool isEditSong = false, SongModel? songModel}) {
                         _song(
                           textTheme,
                           errorText: _songEmpty,
-                          songName: _songModel.songPlatformFile != null
-                              ? _songModel.songPlatformFile?.name
-                              : _songModel.song?.path,
+                          songName:
+                              _songModel.songPlatformFile != null ? _songModel.songPlatformFile?.name : _songModel.song,
                           result: (data) {
                             _songModel.songPlatformFile = data;
                             state(() {});

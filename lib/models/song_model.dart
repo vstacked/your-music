@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 
 class SongModel {
@@ -16,7 +14,7 @@ class SongModel {
     this.description,
   });
 
-  File? song;
+  String? song;
   PlatformFile? songPlatformFile;
   PlatformFile? thumbnailPlatformFile;
   String? title;
