@@ -11,6 +11,8 @@ class BaseField extends StatefulWidget {
     this.errorMessage,
     this.onChanged,
     this.isTextArea = false,
+    this.isOptional = false,
+    this.initialValue,
   }) : super(key: key);
   final String title;
   final bool isPassword;
@@ -19,6 +21,8 @@ class BaseField extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final String? errorMessage;
   final bool isTextArea;
+  final bool isOptional;
+  final String? initialValue;
 
   @override
   _BaseFieldState createState() => _BaseFieldState();
@@ -40,6 +44,7 @@ class _BaseFieldState extends State<BaseField> {
           onChanged: widget.onChanged,
           onFieldSubmitted: widget.onSubmitted,
           maxLines: widget.isTextArea ? 5 : 1,
+          initialValue: widget.initialValue,
           decoration: InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -72,6 +77,7 @@ class _BaseFieldState extends State<BaseField> {
             isDense: true,
           ),
           validator: (value) {
+            if (widget.isOptional) return null;
             if (value!.isEmpty) {
               return '${widget.title} cannot be empty';
             } else if (widget.isPassword && value.length < 4) {
