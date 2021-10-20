@@ -16,6 +16,7 @@ class _LoginState extends State<Login> {
   late final TextEditingController _usernameController;
   late final TextEditingController _passwordController;
   late final AuthProvider _authProviderRead;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -74,26 +75,42 @@ class _LoginState extends State<Login> {
                       },
                       onSubmitted: (_) {
                         if (_formKey.currentState!.validate()) {
-                          _authProviderRead.login(context, _usernameController.text, _passwordController.text);
+                          setState(() => isLoading = true);
+                          _authProviderRead
+                              .login(context, _usernameController.text, _passwordController.text)
+                              .catchError((_) {
+                            setState(() => isLoading = false);
+                          });
                         }
                       },
                     ),
                     const SizedBox(height: 30),
                     ElevatedButton(
-                      onPressed: (_usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty)
-                          ? () {
-                              if (_formKey.currentState!.validate()) {
-                                _authProviderRead.login(context, _usernameController.text, _passwordController.text);
-                              }
-                            }
-                          : null,
+                      onPressed:
+                          _usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty && !isLoading
+                              ? () {
+                                  if (_formKey.currentState!.validate()) {
+                                    setState(() => isLoading = true);
+                                    _authProviderRead
+                                        .login(context, _usernameController.text, _passwordController.text)
+                                        .catchError((_) {
+                                      setState(() => isLoading = false);
+                                    });
+                                  }
+                                }
+                              : null,
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(blueColor),
                         fixedSize: MaterialStateProperty.all(const Size(169, 56)),
                         shape:
                             MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                       ),
-                      child: Text('Login', style: textTheme.button!.copyWith(fontSize: 17, color: greyColor)),
+                      child: !isLoading
+                          ? Text('Login', style: textTheme.button!.copyWith(fontSize: 17, color: greyColor))
+                          : const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
                     ),
                     const Spacer(),
                   ],

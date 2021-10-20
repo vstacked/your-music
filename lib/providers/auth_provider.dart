@@ -18,7 +18,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> login(BuildContext context, String username, String password) async {
     try {
       final data = await FirebaseService.instance.adminAuth();
-      if (data.isEmpty) return;
+      if (data.isEmpty) throw Exception('Error Auth');
 
       if (username == data['username'] && password == data['password']) {
         await _auth.signInAnonymously();
