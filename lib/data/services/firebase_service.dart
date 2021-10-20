@@ -32,6 +32,8 @@ class FirebaseService {
         'thumbnail': await thumbnail.ref.getDownloadURL(),
         'lyric': songModel.lyric ?? '',
         'description': songModel.description ?? '',
+        'created_at': DateTime.now().toLocal(),
+        'active': true,
       });
       return true;
     } catch (e) {
@@ -39,4 +41,7 @@ class FirebaseService {
       return false;
     }
   }
+
+  Stream<QuerySnapshot> fetchSongs() =>
+      _firestore.collection('songs').where('active', isEqualTo: true).orderBy('created_at').snapshots();
 }

@@ -1,6 +1,10 @@
+import 'dart:collection';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:your_music/constants/colors.dart';
+import 'package:your_music/models/song_model.dart';
 import 'package:your_music/providers/song_provider.dart';
 import 'package:your_music/ui/web/home/widgets/dialogs.dart';
 import 'package:your_music/widgets/icon_button_widget.dart';
@@ -110,13 +114,37 @@ class _GridItems extends StatelessWidget {
     return Flexible(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: RemoveScrollbar(
-          child: GridView.builder(
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount(context)),
-            itemCount: 100,
-            itemBuilder: (context, index) => _Item(titleIndex: index),
-          ),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: context.watch<SongProvider>().fetchSongs(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Something Went Wrong..',
+                  style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                ),
+              );
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return RemoveScrollbar(
+              child: GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount(context)),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  final song = snapshot.data!.docs[index];
+                  return _Item(
+                    titleIndex: index,
+                    song: SongModel.fromJson(Map.from(song.data() as LinkedHashMap)..remove('created_at')),
+                  );
+                },
+              ),
+            );
+          },
         ),
       ),
     );
@@ -134,8 +162,9 @@ class _GridItems extends StatelessWidget {
 }
 
 class _Item extends StatelessWidget {
-  const _Item({Key? key, required this.titleIndex}) : super(key: key);
+  const _Item({Key? key, required this.titleIndex, required this.song}) : super(key: key);
   final int titleIndex;
+  final SongModel song;
   @override
   Widget build(BuildContext context) {
     final watch = context.watch<SongProvider>();
@@ -147,14 +176,14 @@ class _Item extends StatelessWidget {
           if (_read.isRemove) {
             _read.setRemoveIds(titleIndex);
           } else {
-            _read.setOpenedSong(titleIndex);
+            _read.setOpenedSong(song);
             if (ResponsiveLayout.isSmallScreen(context)) scaffoldKey.currentState!.openEndDrawer();
           }
         },
         child: DecoratedBox(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: const NetworkImage('https://placeimg.com/640/480/business'),
+              image: NetworkImage(song.thumbnail!),
               fit: BoxFit.cover,
               colorFilter: watch.isRemove ? ColorFilter.mode(overlayColor, BlendMode.multiply) : null,
             ),

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:your_music/data/services/firebase_service.dart';
 import 'package:your_music/models/song_model.dart';
@@ -9,9 +10,9 @@ class SongProvider extends ChangeNotifier {
 
   List<SongModel> queue = [];
 
-  int? _openedSong;
-  int? get openedSong => _openedSong;
-  void setOpenedSong(int? value) {
+  SongModel? _openedSong;
+  SongModel? get openedSong => _openedSong;
+  void setOpenedSong(SongModel? value) {
     _openedSong = value;
     notifyListeners();
   }
@@ -45,4 +46,6 @@ class SongProvider extends ChangeNotifier {
     if (isSuccess) queue.remove(song);
     notifyListeners();
   }
+
+  Stream<QuerySnapshot> fetchSongs() => _firestoreService.fetchSongs();
 }

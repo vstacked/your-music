@@ -103,8 +103,11 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                   iconSize: 30,
                   color: greyColor,
                   onPressed: () {
-                    context.read<SongProvider>().setOpenedSong(null);
-                    if (scaffoldKey.currentState!.isEndDrawerOpen) Navigator.pop(context);
+                    if (scaffoldKey.currentState!.isEndDrawerOpen) {
+                      Navigator.pop(context);
+                    } else {
+                      context.read<SongProvider>().setOpenedSong(null);
+                    }
                   },
                 )
               ],
@@ -124,7 +127,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                           width: 190,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: const NetworkImage('https://placeimg.com/640/480/business'),
+                              image: NetworkImage(watch.openedSong!.thumbnail!),
                               fit: BoxFit.cover,
                               colorFilter: ColorFilter.mode(overlayColor, BlendMode.multiply),
                             ),
@@ -140,22 +143,13 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Text('Title Music ${watch.openedSong}', style: textTheme.headline6),
-                      Text('Singer ${watch.openedSong}', style: textTheme.subtitle1!.copyWith(color: greyColor)),
+                      Text(watch.openedSong!.title!, style: textTheme.headline6, textAlign: TextAlign.center),
+                      Text(watch.openedSong!.singer!,
+                          style: textTheme.subtitle1!.copyWith(color: greyColor), textAlign: TextAlign.center),
                       const SizedBox(height: 10),
-                      _detail(
-                        context,
-                        title: 'Description',
-                        content:
-                            '${watch.openedSong} Sint et aut modi eveniet nobis. Nihil dicta pariatur excepturi omnis. Esse quidem qui est. Velit odio consequatur quisquam facilis minima. Nostrum in iusto voluptatem deleniti. Sit ipsa iusto sed. Sed sint ipsam tempore dolorem accusamus magnam.Qui dolorum molestiae. Omnis quia in at dolores nisi et aut. Quaerat est delectus dolores omnis sit. Vel adipisci error saepe. Et fugit et qui nulla voluptas nesciunt. Autem pariatur molestias ut quaerat quia. ',
-                      ),
+                      _detail(context, title: 'Description', content: watch.openedSong!.description!),
                       const SizedBox(height: 20),
-                      _detail(
-                        context,
-                        title: 'Release Date',
-                        content:
-                            '${watch.openedSong} Sint et aut modi eveniet nobis. Nihil dicta pariatur excepturi omnis. Esse quidem qui est. Velit odio consequatur quisquam facilis minima. Nostrum in iusto voluptatem deleniti. Sit ipsa iusto sed. Sed sint ipsam tempore dolorem accusamus magnam.Qui dolorum molestiae. Omnis quia in at dolores nisi et aut. Quaerat est delectus dolores omnis sit. Vel adipisci error saepe. Et fugit et qui nulla voluptas nesciunt. Autem pariatur molestias ut quaerat quia. ',
-                      ),
+                      _detail(context, title: 'Lyric', content: watch.openedSong!.lyric!),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -173,12 +167,11 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(title, style: textTheme.bodyText1),
+        SizedBox(width: double.maxFinite, child: Text(title, style: textTheme.bodyText1)),
         Padding(
           padding: const EdgeInsets.only(left: 8),
           child: ReadMoreText(
             content,
-            trimLines: 2,
             style: textTheme.bodyText2!.copyWith(color: greyColor),
             trimMode: TrimMode.Length,
             lessStyle: textTheme.bodyText2!.copyWith(color: blueColor),
