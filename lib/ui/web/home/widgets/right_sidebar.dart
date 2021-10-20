@@ -94,7 +94,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                       context: context,
                       barrierColor: overlayColor,
                       routeSettings: const RouteSettings(name: '/editSongDialog'),
-                      builder: editSong,
+                      builder: (context) => songDialog(isEditSong: true),
                     );
                   },
                 ),

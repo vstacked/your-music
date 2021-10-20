@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:your_music/data/services/firestore_service.dart';
+import 'package:your_music/data/services/firebase_service.dart';
 import 'package:your_music/utils/routes/routes.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -17,7 +17,8 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> login(BuildContext context, String username, String password) async {
     try {
-      final data = await FirestoreService.instance.adminAuth();
+      final data = await FirebaseService.instance.adminAuth();
+      if (data.isEmpty) return;
 
       if (username == data['username'] && password == data['password']) {
         await _auth.signInAnonymously();

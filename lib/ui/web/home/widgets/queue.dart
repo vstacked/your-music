@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:your_music/constants/colors.dart';
+import 'package:provider/provider.dart';
+import 'package:your_music/providers/song_provider.dart';
 
 class Queue extends StatelessWidget {
   const Queue({Key? key}) : super(key: key);
@@ -8,6 +10,7 @@ class Queue extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final songWatch = context.watch<SongProvider>();
     return Align(
       alignment: Alignment.bottomRight,
       child: Container(
@@ -28,7 +31,7 @@ class Queue extends StatelessWidget {
             const Divider(thickness: 1, color: greyColor, height: 0),
             Flexible(
               child: ListView.separated(
-                itemCount: 3,
+                itemCount: songWatch.queue.length,
                 shrinkWrap: true,
                 separatorBuilder: (_, __) => const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -36,8 +39,8 @@ class Queue extends StatelessWidget {
                 ),
                 itemBuilder: (_, i) {
                   return ListTile(
-                    title: Text('Title Music $i'),
-                    subtitle: Text('Singer $i'),
+                    title: Text(songWatch.queue[i].title!),
+                    subtitle: Text(songWatch.queue[i].singer!),
                     trailing: const CupertinoActivityIndicator(),
                   );
                 },

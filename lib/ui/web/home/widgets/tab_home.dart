@@ -56,7 +56,7 @@ class TabHome extends StatelessWidget {
                           context: context,
                           barrierColor: overlayColor,
                           routeSettings: const RouteSettings(name: '/addSongDialog'),
-                          builder: addSong,
+                          builder: (context) => songDialog(),
                         );
                       },
                     ),
