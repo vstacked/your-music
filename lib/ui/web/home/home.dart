@@ -21,6 +21,7 @@ class Home extends StatelessWidget {
         key: scaffoldKey,
         drawer: const SmallSidebar(),
         endDrawer: const SmallRightSidebar(),
+        endDrawerEnableOpenDragGesture: false,
         drawerScrimColor: overlayColor,
         body: Stack(
           children: [
