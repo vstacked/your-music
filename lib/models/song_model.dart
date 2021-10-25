@@ -4,23 +4,25 @@ import 'package:file_picker/file_picker.dart';
 
 class SongModel {
   SongModel({
+    this.id,
     this.song,
     this.songPlatformFile,
     this.thumbnailPlatformFile,
     this.title,
     this.singer,
     this.lyric,
-    this.thumbnail,
+    this.thumbnailUrl,
     this.description,
   });
 
-  String? song;
+  String? id;
+  Song? song;
   PlatformFile? songPlatformFile;
   PlatformFile? thumbnailPlatformFile;
   String? title;
   String? singer;
   String? lyric;
-  String? thumbnail;
+  String? thumbnailUrl;
   String? description;
 
   factory SongModel.fromRawJson(String str) => SongModel.fromJson(json.decode(str));
@@ -28,24 +30,37 @@ class SongModel {
   String toRawJson() => json.encode(toJson());
 
   factory SongModel.fromJson(Map<String, dynamic> json) => SongModel(
-        song: json['song'],
-        songPlatformFile: json['songPlatformFile'],
-        thumbnailPlatformFile: json['thumbnailPlatformFile'],
+        id: json['id'],
+        song: json['song'] == null ? null : Song.fromJson(json['song']),
         title: json['title'],
         singer: json['singer'],
         lyric: json['lyric'],
-        thumbnail: json['thumbnail'],
+        thumbnailUrl: json['thumbnail_url'],
         description: json['description'],
       );
 
   Map<String, dynamic> toJson() => {
-        'song': song,
-        'songPlatformFile': songPlatformFile,
-        'thumbnailPlatformFile': thumbnailPlatformFile,
+        'id': id,
+        'song': song == null ? null : song!.toJson(),
         'title': title,
         'singer': singer,
         'lyric': lyric,
-        'thumbnail': thumbnail,
+        'thumbnail_url': thumbnailUrl,
         'description': description,
       };
+}
+
+class Song {
+  Song({this.name, this.url});
+
+  String? name;
+  String? url;
+
+  factory Song.fromRawJson(String str) => Song.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Song.fromJson(Map<String, dynamic> json) => Song(name: json['name'], url: json['url']);
+
+  Map<String, dynamic> toJson() => {'name': name, 'url': url};
 }
