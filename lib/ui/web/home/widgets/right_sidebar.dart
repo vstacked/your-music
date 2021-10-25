@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:your_music/constants/colors.dart';
 import 'package:your_music/providers/song_provider.dart';
@@ -49,25 +50,49 @@ class _DetailSong extends StatefulWidget {
 
 class _DetailSongState extends State<_DetailSong> with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
-  bool isPlaying = false;
+  late final AudioPlayer audioPlayer;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
+    audioPlayer = AudioPlayer();
+    _setAudio();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    audioPlayer.dispose();
     super.dispose();
   }
 
-  void _handleOnPressed() {
-    setState(() {
-      isPlaying = !isPlaying;
-      isPlaying ? _animationController.forward() : _animationController.reverse();
-    });
+  Future<void> _setAudio() async {
+    try {
+      Uri uri = Uri.parse(context.read<SongProvider>().openedSong!.song!.url!);
+      await audioPlayer.setUrl(uri.toString());
+      await audioPlayer.load();
+      if (audioPlayer.playing) audioPlayer.stop();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void playAudio() async {
+    if (_animationController.isCompleted) {
+      _animationController.reverse();
+      audioPlayer.pause();
+    } else {
+      _animationController.forward();
+
+      if (audioPlayer.processingState == ProcessingState.completed) await audioPlayer.load();
+
+      audioPlayer.play();
+
+      audioPlayer.processingStateStream.listen((event) {
+        if (audioPlayer.processingState == ProcessingState.completed) _animationController.reverse();
+      });
+    }
   }
 
   @override
@@ -94,7 +119,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                       context: context,
                       barrierColor: overlayColor,
                       routeSettings: const RouteSettings(name: '/editSongDialog'),
-                      builder: (context) => songDialog(isEditSong: true),
+                      builder: (context) => songDialog(isEdit: true, songModel: watch.openedSong),
                     );
                   },
                 ),
@@ -108,6 +133,8 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                     } else {
                       context.read<SongProvider>().setOpenedSong(null);
                     }
+
+                    if (audioPlayer.playing) audioPlayer.stop();
                   },
                 )
               ],
@@ -119,15 +146,13 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                     children: [
                       const SizedBox(height: 20),
                       GestureDetector(
-                        onTap: () {
-                          _handleOnPressed();
-                        },
+                        onTap: playAudio,
                         child: Container(
                           height: 190,
                           width: 190,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: NetworkImage(watch.openedSong!.thumbnail!),
+                              image: NetworkImage(watch.openedSong!.thumbnailUrl!),
                               fit: BoxFit.cover,
                               colorFilter: ColorFilter.mode(overlayColor, BlendMode.multiply),
                             ),
