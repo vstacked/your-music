@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:your_music/constants/colors.dart';
@@ -17,6 +18,7 @@ class TabHome extends StatelessWidget {
   const TabHome({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final watch = context.watch<SongProvider>();
     final textTheme = Theme.of(context).textTheme;
     return RotatedBox(
       quarterTurns: -1,
@@ -32,10 +34,12 @@ class TabHome extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (watch.isRemoveLoading)
+                      const SizedBox(height: 15, width: 15, child: CupertinoActivityIndicator()),
                     IconButtonWidget(
                       icon: const Icon(Icons.delete, size: 35),
                       buttonText: 'Remove Selected',
-                      isOutlinedButton: context.watch<SongProvider>().isRemove,
+                      isOutlinedButton: watch.isRemove,
                       color: redColor,
                       onPressed: () {
                         final _read = context.read<SongProvider>();
@@ -138,8 +142,8 @@ class _GridItems extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final song = snapshot.data!.docs[index];
                   return _Item(
-                    titleIndex: index,
-                    song: SongModel.fromJson(Map.from(song.data() as LinkedHashMap)..remove('created_at')),
+                    song: SongModel.fromJson(Map.from(song.data() as LinkedHashMap)..remove('created_at'))
+                      ..id = song.id,
                   );
                 },
               ),
@@ -162,8 +166,7 @@ class _GridItems extends StatelessWidget {
 }
 
 class _Item extends StatelessWidget {
-  const _Item({Key? key, required this.titleIndex, required this.song}) : super(key: key);
-  final int titleIndex;
+  const _Item({Key? key, required this.song}) : super(key: key);
   final SongModel song;
   @override
   Widget build(BuildContext context) {
@@ -174,8 +177,9 @@ class _Item extends StatelessWidget {
         onTap: () {
           final _read = context.read<SongProvider>();
           if (_read.isRemove) {
-            _read.setRemoveIds(titleIndex);
+            _read.setRemoveIds(song.id!);
           } else {
+            _read.setOpenedSong(null);
             _read.setOpenedSong(song);
             if (ResponsiveLayout.isSmallScreen(context)) scaffoldKey.currentState!.openEndDrawer();
           }
@@ -183,7 +187,7 @@ class _Item extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: NetworkImage(song.thumbnail!),
+              image: NetworkImage(song.thumbnailUrl!),
               fit: BoxFit.cover,
               colorFilter: watch.isRemove ? ColorFilter.mode(overlayColor, BlendMode.multiply) : null,
             ),
@@ -197,8 +201,8 @@ class _Item extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.topRight,
                   child: Checkbox(
-                    value: watch.containsRemoveId(titleIndex),
-                    onChanged: (_) => context.read<SongProvider>().setRemoveIds(titleIndex),
+                    value: watch.containsRemoveId(song.id!),
+                    onChanged: (_) => context.read<SongProvider>().setRemoveIds(song.id!),
                   ),
                 ),
               );

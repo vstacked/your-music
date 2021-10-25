@@ -26,9 +26,12 @@ class SongProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  final List<int> _removeIds = [];
-  bool containsRemoveId(int id) => _removeIds.contains(id);
-  void setRemoveIds(int id) {
+  bool _isRemoveLoading = false;
+  bool get isRemoveLoading => _isRemoveLoading;
+
+  final List<String> _removeIds = [];
+  bool containsRemoveId(String id) => _removeIds.contains(id);
+  void setRemoveIds(String id) {
     if (_removeIds.contains(id)) {
       _removeIds.remove(id);
     } else {
@@ -39,11 +42,26 @@ class SongProvider extends ChangeNotifier {
 
   void clearRemoveIds() => _removeIds.clear();
 
-  Future<void> saveSong(SongModel song) async {
+  Future<void> saveOrUpdateSong(SongModel song, {bool isEdit = false}) async {
+    _openedSong = null;
     queue.add(song);
     notifyListeners();
-    final isSuccess = await _firestoreService.saveSong(song);
+    final isSuccess = await _firestoreService.saveOrUpdateSong(song, isEdit: isEdit);
     if (isSuccess) queue.remove(song);
+    notifyListeners();
+  }
+
+  Future<void> deleteSong() async {
+    _isRemove = false;
+    _isRemoveLoading = true;
+    notifyListeners();
+
+    for (var item in _removeIds) {
+      await _firestoreService.deleteSong(item);
+    }
+
+    clearRemoveIds();
+    _isRemoveLoading = false;
     notifyListeners();
   }
 

@@ -35,7 +35,10 @@ AlertDialog deleteSong(BuildContext context) {
         ),
       ),
       ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pop(context);
+          context.read<SongProvider>().deleteSong();
+        },
         child: const Text('Yes'),
         style: ButtonStyle(
           fixedSize: MaterialStateProperty.all(const Size(80, 35)),
@@ -49,7 +52,7 @@ AlertDialog deleteSong(BuildContext context) {
   );
 }
 
-Widget songDialog({bool isEditSong = false, SongModel? songModel}) {
+Widget songDialog({bool isEdit = false, SongModel? songModel}) {
   final _formKey = GlobalKey<FormState>();
   String? _songEmpty, _thumbnailEmpty;
   SongModel _songModel = songModel ?? SongModel();
@@ -62,7 +65,7 @@ Widget songDialog({bool isEditSong = false, SongModel? songModel}) {
         _thumbnailEmpty = _songModel.thumbnailPlatformFile == null ? 'Thumbnails cannot empty' : null;
 
         if (_formKey.currentState!.validate()) {
-          context.read<SongProvider>().saveSong(_songModel);
+          context.read<SongProvider>().saveOrUpdateSong(_songModel, isEdit: isEdit);
           Navigator.pop(context);
         }
         state(() {});
@@ -78,7 +81,7 @@ Widget songDialog({bool isEditSong = false, SongModel? songModel}) {
         child: ResponsiveLayout(
           largeScreen: _dialog(
             children: <Widget>[
-              _title(context, title: !isEditSong ? 'Add Song' : 'Edit Song'),
+              _title(context, title: !isEdit ? 'Add Song' : 'Edit Song'),
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -97,7 +100,7 @@ Widget songDialog({bool isEditSong = false, SongModel? songModel}) {
                                     errorText: _songEmpty,
                                     songName: _songModel.songPlatformFile != null
                                         ? _songModel.songPlatformFile?.name
-                                        : _songModel.song,
+                                        : _songModel.song?.name,
                                     result: (data) {
                                       _songModel.songPlatformFile = data;
                                       state(() {});
@@ -132,7 +135,7 @@ Widget songDialog({bool isEditSong = false, SongModel? songModel}) {
                                     180,
                                     textTheme,
                                     errorText: _thumbnailEmpty,
-                                    urlPath: _songModel.thumbnail,
+                                    urlPath: _songModel.thumbnailUrl,
                                     bytes: _songModel.thumbnailPlatformFile?.bytes,
                                     result: (data) {
                                       _songModel.thumbnailPlatformFile = data;
@@ -183,7 +186,7 @@ Widget songDialog({bool isEditSong = false, SongModel? songModel}) {
           ),
           smallScreen: _dialog(
             children: <Widget>[
-              _title(context, title: !isEditSong ? 'Add Song' : 'Edit Song'),
+              _title(context, title: !isEdit ? 'Add Song' : 'Edit Song'),
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -199,7 +202,7 @@ Widget songDialog({bool isEditSong = false, SongModel? songModel}) {
                               150,
                               textTheme,
                               errorText: _thumbnailEmpty,
-                              urlPath: _songModel.thumbnail,
+                              urlPath: _songModel.thumbnailUrl,
                               bytes: _songModel.thumbnailPlatformFile?.bytes,
                               result: (data) {
                                 _songModel.thumbnailPlatformFile = data;
@@ -212,8 +215,9 @@ Widget songDialog({bool isEditSong = false, SongModel? songModel}) {
                         _song(
                           textTheme,
                           errorText: _songEmpty,
-                          songName:
-                              _songModel.songPlatformFile != null ? _songModel.songPlatformFile?.name : _songModel.song,
+                          songName: _songModel.songPlatformFile != null
+                              ? _songModel.songPlatformFile?.name
+                              : _songModel.song?.name,
                           result: (data) {
                             _songModel.songPlatformFile = data;
                             state(() {});
@@ -326,7 +330,7 @@ Column _thumbnail(double size, TextTheme textTheme,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: greyColor,
-          image: urlPath != null
+          image: urlPath != null && bytes == null
               ? DecorationImage(image: NetworkImage(urlPath), fit: BoxFit.cover)
               : (bytes != null ? DecorationImage(image: MemoryImage(bytes), fit: BoxFit.cover) : null),
         ),
