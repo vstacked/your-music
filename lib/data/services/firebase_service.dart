@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase/firebase.dart' as firebase;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +9,6 @@ class FirebaseService {
   FirebaseService._();
   static final instance = FirebaseService._();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
@@ -19,7 +18,7 @@ class FirebaseService {
     return {};
   }
 
-  bool get isLogged => _auth.currentUser != null;
+  bool get isLogin => firebase.auth().currentUser != null;
 
   Future<bool> login(String username, String password) async {
     try {
@@ -27,7 +26,7 @@ class FirebaseService {
       if (data.isEmpty) throw Exception('Error Auth');
 
       if (username == data['username'] && password == data['password']) {
-        await _auth.signInAnonymously();
+        await firebase.auth().signInAnonymously();
         return true;
       }
 
@@ -42,7 +41,7 @@ class FirebaseService {
     try {
       final _collection = _firestore.collection('songs');
 
-      final _template = '${_auth.currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
+      final _template = '${firebase.auth().currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
 
       if (!isEdit) {
         final song = await _storage
