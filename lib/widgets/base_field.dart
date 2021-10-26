@@ -54,11 +54,16 @@ class _BaseFieldState extends State<BaseField> {
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: redColor),
             ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: redColor, width: 2),
+            ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: greyColor, width: 2),
             ),
             errorText: widget.errorMessage,
+            errorStyle: Theme.of(context).textTheme.bodyText1!.copyWith(color: redColor),
             suffixIcon: (widget.isPassword)
                 ? Transform.scale(
                     scale: .5,
