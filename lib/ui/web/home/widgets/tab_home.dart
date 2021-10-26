@@ -18,6 +18,7 @@ class TabHome extends StatelessWidget {
   const TabHome({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final read = context.read<SongProvider>();
     final watch = context.watch<SongProvider>();
     final textTheme = Theme.of(context).textTheme;
     return RotatedBox(
@@ -36,14 +37,19 @@ class TabHome extends StatelessWidget {
                   children: [
                     if (watch.isRemoveLoading)
                       const SizedBox(height: 15, width: 15, child: CupertinoActivityIndicator()),
+                    if (watch.isRemoveFailed)
+                      IconButtonWidget(
+                        icon: const Icon(Icons.refresh_rounded),
+                        color: redColor,
+                        onPressed: read.deleteSong,
+                      ),
                     IconButtonWidget(
                       icon: const Icon(Icons.delete, size: 35),
                       buttonText: 'Remove Selected',
                       isOutlinedButton: watch.isRemove,
                       color: redColor,
                       onPressed: () {
-                        final _read = context.read<SongProvider>();
-                        if (_read.isRemove) {
+                        if (read.isRemove) {
                           showDialog(
                             context: context,
                             barrierColor: overlayColor,
@@ -51,7 +57,7 @@ class TabHome extends StatelessWidget {
                             builder: deleteSong,
                           );
                         } else {
-                          _read.setRemove(true);
+                          read.setRemove(true);
                         }
                       },
                     ),
