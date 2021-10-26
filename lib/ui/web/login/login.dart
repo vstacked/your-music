@@ -81,9 +81,11 @@ class _LoginState extends State<Login> {
                         }
                       },
                     ),
-                    const Spacer(),
-                    if (_authProviderRead.errorMessage.isNotEmpty)
-                      Text(_authProviderRead.errorMessage, style: textTheme.bodyText1!.copyWith(color: redColor)),
+                    const SizedBox(height: 30),
+                    Text(
+                      context.watch<AuthProvider>().errorMessage,
+                      style: textTheme.bodyText1!.copyWith(color: redColor),
+                    ),
                     const SizedBox(height: 30),
                     ElevatedButton(
                       onPressed:
