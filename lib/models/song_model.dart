@@ -13,6 +13,7 @@ class SongModel {
     this.lyric,
     this.thumbnailUrl,
     this.description,
+    this.isError = false,
   });
 
   String? id;
@@ -24,6 +25,7 @@ class SongModel {
   String? lyric;
   String? thumbnailUrl;
   String? description;
+  bool isError;
 
   factory SongModel.fromRawJson(String str) => SongModel.fromJson(json.decode(str));
 
