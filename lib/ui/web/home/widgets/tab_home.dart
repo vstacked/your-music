@@ -173,40 +173,46 @@ class _Item extends StatelessWidget {
     final watch = context.watch<SongProvider>();
     return Padding(
       padding: const EdgeInsets.all(5),
-      child: GestureDetector(
-        onTap: () {
-          final _read = context.read<SongProvider>();
-          if (_read.isRemove) {
-            _read.setRemoveIds(song.id!);
-          } else {
-            _read.setOpenedSong(null);
-            _read.setOpenedSong(song);
-            if (ResponsiveLayout.isSmallScreen(context)) scaffoldKey.currentState!.openEndDrawer();
-          }
-        },
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(song.thumbnailUrl!),
-              fit: BoxFit.cover,
-              colorFilter: watch.isRemove ? ColorFilter.mode(overlayColor, BlendMode.multiply) : null,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Builder(
-            builder: (_) {
-              if (!watch.isRemove) return const SizedBox();
-              return Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Checkbox(
-                    value: watch.containsRemoveId(song.id!),
-                    onChanged: (_) => context.read<SongProvider>().setRemoveIds(song.id!),
-                  ),
-                ),
-              );
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              final _read = context.read<SongProvider>();
+              if (_read.isRemove) {
+                _read.setRemoveIds(song.id!);
+              } else {
+                _read.setOpenedSong(null);
+                _read.setOpenedSong(song);
+                if (ResponsiveLayout.isSmallScreen(context)) scaffoldKey.currentState!.openEndDrawer();
+              }
             },
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(song.thumbnailUrl!),
+                  fit: BoxFit.cover,
+                  colorFilter: watch.isRemove ? ColorFilter.mode(overlayColor, BlendMode.multiply) : null,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Builder(
+                builder: (_) {
+                  if (!watch.isRemove) return const SizedBox();
+                  return Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Checkbox(
+                        value: watch.containsRemoveId(song.id!),
+                        onChanged: (_) => context.read<SongProvider>().setRemoveIds(song.id!),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         ),
       ),
