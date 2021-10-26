@@ -20,6 +20,7 @@ class Home extends StatelessWidget {
       child: Scaffold(
         key: scaffoldKey,
         drawer: const SmallSidebar(),
+        drawerEnableOpenDragGesture: false,
         endDrawer: const SmallRightSidebar(),
         endDrawerEnableOpenDragGesture: false,
         drawerScrimColor: overlayColor,
