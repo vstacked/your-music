@@ -18,6 +18,12 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = '';
 
     final isLogin = await FirebaseService.instance.login(username, password);
+
+    if (isLogin == null) {
+      _errorMessage = 'Error Occurred';
+      return;
+    }
+
     if (isLogin) {
       _isLogin = true;
       Navigator.pushReplacementNamed(context, Routes.home);

@@ -20,7 +20,7 @@ class FirebaseService {
 
   bool get isLogin => firebase.auth().currentUser != null;
 
-  Future<bool> login(String username, String password) async {
+  Future<bool?> login(String username, String password) async {
     try {
       final data = await _adminAuth();
       if (data.isEmpty) throw Exception('Error Auth');
@@ -33,7 +33,7 @@ class FirebaseService {
       return false;
     } catch (e) {
       debugPrint('$e');
-      return false;
+      return null;
     }
   }
 
