@@ -13,6 +13,10 @@
         "firestore",
         "readmore",
         "scrollbars",
-        "toggleable"
+        "toggleable",
+        "vsync"
+    ],
+    "cSpell.enableFiletypes": [
+        "dart"
     ]
 }
