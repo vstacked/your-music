@@ -189,6 +189,7 @@ class _Item extends StatelessWidget {
               if (_read.isRemove) {
                 _read.setRemoveIds(song.id!);
               } else {
+                if (_read.openedSong?.id == song.id) return;
                 _read.setOpenedSong(null);
                 _read.setOpenedSong(song);
                 if (ResponsiveLayout.isSmallScreen(context)) scaffoldKey.currentState!.openEndDrawer();
