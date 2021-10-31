@@ -48,50 +48,66 @@ class _DetailSong extends StatefulWidget {
   _DetailSongState createState() => _DetailSongState();
 }
 
-class _DetailSongState extends State<_DetailSong> with SingleTickerProviderStateMixin {
+class _DetailSongState extends State<_DetailSong> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _animationController;
   late final AudioPlayer audioPlayer;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance?.addObserver(this);
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
     audioPlayer = AudioPlayer();
-    _setAudio();
+    audioPlayer.playingStream.listen((event) {
+      if (event) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance?.addObserver(this);
     _animationController.dispose();
     audioPlayer.dispose();
     super.dispose();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) audioPlayer.stop();
+  }
+
   Future<void> _setAudio() async {
     try {
       Uri uri = Uri.parse(context.read<SongProvider>().openedSong!.song!.url!);
+      _animationController.reset();
+      await audioPlayer.stop();
       await audioPlayer.setUrl(uri.toString());
       await audioPlayer.load();
-      if (audioPlayer.playing) audioPlayer.stop();
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('_setAudio()| $e');
     }
   }
 
   void playAudio() async {
-    if (_animationController.isCompleted) {
-      _animationController.reverse();
-      audioPlayer.pause();
-    } else {
-      _animationController.forward();
+    try {
+      if (_animationController.isCompleted && audioPlayer.playing) {
+        await audioPlayer.pause();
+      } else {
+        if (audioPlayer.processingState == ProcessingState.ready && !audioPlayer.playing) await audioPlayer.play();
 
-      if (audioPlayer.processingState == ProcessingState.completed) await audioPlayer.load();
-
-      audioPlayer.play();
-
-      audioPlayer.processingStateStream.listen((event) {
-        if (audioPlayer.processingState == ProcessingState.completed) _animationController.reverse();
-      });
+        audioPlayer.processingStateStream.listen((event) {
+          if (event == ProcessingState.completed && audioPlayer.playing) {
+            audioPlayer.pause();
+            audioPlayer.seek(Duration.zero);
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('playAudio() | $e');
     }
   }
 
@@ -99,6 +115,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
   Widget build(BuildContext context) {
     final watch = context.watch<SongProvider>();
     final textTheme = Theme.of(context).textTheme;
+    if (mounted) _setAudio();
 
     return Material(
       color: primaryColor,
@@ -145,24 +162,29 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                   child: Column(
                     children: [
                       const SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: playAudio,
-                        child: Container(
-                          height: 190,
-                          width: 190,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(watch.openedSong!.thumbnailUrl!),
-                              fit: BoxFit.cover,
-                              colorFilter: ColorFilter.mode(overlayColor, BlendMode.multiply),
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: AnimatedIcon(
-                              icon: AnimatedIcons.play_pause,
-                              progress: _animationController,
-                              size: 40,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Material(
+                          child: InkWell(
+                            onTap: playAudio,
+                            child: Container(
+                              height: 190,
+                              width: 190,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: NetworkImage(watch.openedSong!.thumbnailUrl!),
+                                  fit: BoxFit.cover,
+                                  colorFilter: ColorFilter.mode(overlayColor, BlendMode.multiply),
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: AnimatedIcon(
+                                  icon: AnimatedIcons.play_pause,
+                                  progress: _animationController,
+                                  size: 40,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -196,7 +218,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
         Padding(
           padding: const EdgeInsets.only(left: 8),
           child: ReadMoreText(
-            content,
+            content.isEmpty ? '-' : content,
             style: textTheme.bodyText2!.copyWith(color: greyColor),
             trimMode: TrimMode.Length,
             lessStyle: textTheme.bodyText2!.copyWith(color: blueColor),
