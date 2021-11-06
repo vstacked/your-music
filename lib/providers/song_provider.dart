@@ -53,6 +53,10 @@ class SongProvider extends ChangeNotifier {
     final isSuccess = await _firestoreService.saveOrUpdateSong(song, isEdit: isEdit);
     if (isSuccess) {
       queue.remove(song);
+      _firestoreService.sendMessage(
+        type: !isEdit ? MessageType.added : MessageType.edited,
+        title: '${song.singer} - ${song.title}',
+      );
     } else {
       queue.firstWhere((element) => element == song).isError = true;
     }
@@ -63,6 +67,7 @@ class SongProvider extends ChangeNotifier {
   Future<void> deleteSong() async {
     _isRemove = _isRemoveFailed = false;
     _isRemoveLoading = true;
+    _openedSong = null;
     notifyListeners();
 
     for (var item in _removeIds) {
@@ -73,7 +78,10 @@ class SongProvider extends ChangeNotifier {
       }
     }
 
-    if (!_isRemoveFailed) clearRemoveIds();
+    if (!_isRemoveFailed) {
+      _firestoreService.sendMessage(type: MessageType.deleted, title: _removeIds.length.toString());
+      clearRemoveIds();
+    }
     _isRemoveLoading = false;
     notifyListeners();
   }

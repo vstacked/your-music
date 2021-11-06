@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -5,6 +8,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:your_music/models/song_model.dart';
+import 'package:http/http.dart' as http;
+
+enum MessageType { added, edited, deleted }
 
 class FirebaseService {
   FirebaseService._();
@@ -127,4 +133,41 @@ class FirebaseService {
 
   Stream<QuerySnapshot> fetchSongs() =>
       _firestore.collection('songs').where('active', isEqualTo: true).orderBy('created_at').snapshots();
+
+  Future<void> sendMessage({required MessageType type, required String title}) async {
+    try {
+      String msgId, body;
+
+      switch (type) {
+        case MessageType.added:
+          msgId = '0';
+          body = '$title has been added, Check it out now!';
+          break;
+        case MessageType.edited:
+          msgId = '1';
+          body = '$title has been edited, Check it out now!';
+          break;
+        case MessageType.deleted:
+          msgId = '2';
+          body = '$title songs are deleted';
+          break;
+      }
+
+      await http.post(
+        Uri.https('fcm.googleapis.com', '/fcm/send'),
+        headers: {
+          HttpHeaders.authorizationHeader:
+              'key=AAAAa-cEYLc:APA91bHQGUy1aLc1QMxM30gvpRVzLU-fjnT6ETAfTIlBzpq2ZZcmA1aqzPiZnT40UbAf0GKGrVlg9O70ObwUlqPATfXwkYu1zuE-HHJRAmbp1g1u8MhlWSXPTn5BE7FVzM7NlE2PbdIj',
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+        },
+        body: jsonEncode({
+          'to': '/topics/messaging',
+          'notification': {'title': 'Your Music', 'body': body},
+          'data': {'msgId': msgId}
+        }),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 }
