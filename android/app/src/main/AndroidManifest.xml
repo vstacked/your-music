@@ -4,7 +4,7 @@
   <application android:label="your_music"
     android:icon="@mipmap/ic_launcher"
     android:usesCleartextTraffic="true">
-    <activity android:name=".Application"
+    <activity android:name=".MainActivity"
       android:launchMode="singleTop"
       android:theme="@style/LaunchTheme"
       android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
