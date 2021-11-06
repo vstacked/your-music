@@ -16,6 +16,7 @@ class _LoginState extends State<Login> {
   late final TextEditingController _usernameController;
   late final TextEditingController _passwordController;
   late final AuthProvider _authProviderRead;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -50,16 +51,14 @@ class _LoginState extends State<Login> {
                 child: Column(
                   children: <Widget>[
                     const Spacer(),
-                    Text(
-                      'This is Logo',
-                      style: textTheme.headline4!.copyWith(color: greyColor),
-                    ),
+                    Text('Your Music', style: textTheme.headline4!.copyWith(color: greyColor)),
                     const Spacer(),
                     BaseField(
                       title: 'Username',
                       controller: _usernameController,
                       onChanged: (_) {
                         _formKey.currentState!.validate();
+                        setState(() {});
                       },
                     ),
                     const SizedBox(height: 10),
@@ -69,27 +68,49 @@ class _LoginState extends State<Login> {
                       controller: _passwordController,
                       onChanged: (_) {
                         _formKey.currentState!.validate();
+                        setState(() {});
                       },
                       onSubmitted: (_) {
                         if (_formKey.currentState!.validate()) {
-                          _authProviderRead.login(context, _usernameController.text, _passwordController.text);
+                          setState(() => isLoading = true);
+                          _authProviderRead
+                              .login(context, _usernameController.text, _passwordController.text)
+                              .whenComplete(() {
+                            setState(() => isLoading = false);
+                          });
                         }
                       },
                     ),
                     const SizedBox(height: 30),
+                    Text(
+                      context.watch<AuthProvider>().errorMessage,
+                      style: textTheme.bodyText1!.copyWith(color: redColor),
+                    ),
+                    const SizedBox(height: 30),
                     ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _authProviderRead.login(context, _usernameController.text, _passwordController.text);
-                        }
-                      },
+                      onPressed:
+                          _usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty && !isLoading
+                              ? () {
+                                  if (_formKey.currentState!.validate()) {
+                                    setState(() => isLoading = true);
+                                    _authProviderRead
+                                        .login(context, _usernameController.text, _passwordController.text)
+                                        .whenComplete(() {
+                                      setState(() => isLoading = false);
+                                    });
+                                  }
+                                }
+                              : null,
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(blueColor),
                         fixedSize: MaterialStateProperty.all(const Size(169, 56)),
                         shape:
                             MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                        elevation: MaterialStateProperty.all(0),
                       ),
-                      child: Text('Login', style: textTheme.button!.copyWith(fontSize: 17, color: greyColor)),
+                      child: !isLoading
+                          ? Text('Login', style: textTheme.button!.copyWith(fontSize: 17, color: greyColor))
+                          : const SizedBox(height: 25, width: 25, child: CircularProgressIndicator()),
                     ),
                     const Spacer(),
                   ],

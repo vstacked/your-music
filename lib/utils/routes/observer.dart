@@ -1,10 +1,11 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:your_music/providers/auth_provider.dart';
 import 'package:your_music/ui/web/home/home.dart';
 import 'package:your_music/ui/web/login/login.dart';
-import 'package:your_music/ui/web/my_app.dart';
+import 'package:your_music/ui/my_app.dart';
 import 'package:provider/provider.dart';
 import 'package:your_music/utils/routes/routes.dart';
 
@@ -29,12 +30,14 @@ class Observer extends NavigatorObserver {
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    bool isLogin = navigatorKey.currentContext!.read<AuthProvider>().isLogin;
+    if (kIsWeb) {
+      bool isLogin = navigatorKey.currentContext!.read<AuthProvider>().isLogin;
 
-    if (route.settings.name != Routes.login && !isLogin) {
-      _pushRemoveWithoutAnimation(const Login(), routes: Routes.login);
-    } else if (route.settings.name == Routes.login && isLogin) {
-      _pushRemoveWithoutAnimation(const Home(), routes: Routes.home);
+      if (route.settings.name != Routes.login && !isLogin) {
+        _pushRemoveWithoutAnimation(const Login(), routes: Routes.login);
+      } else if (route.settings.name == Routes.login && isLogin) {
+        _pushRemoveWithoutAnimation(const Home(), routes: Routes.home);
+      }
     }
 
     _routeStack.add(route);

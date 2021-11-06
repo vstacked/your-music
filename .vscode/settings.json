@@ -9,9 +9,21 @@
         "**/.fvm": true
     },
     "cSpell.words": [
-        "Cupertino",
+        "cupertino",
+        "firestore",
+        "microtask",
         "readmore",
         "scrollbars",
-        "toggleable"
+        "toggleable",
+        "vsync"
+    ],
+    "cSpell.enableFiletypes": [
+        "dart"
+    ],
+    "cSpell.ignoreWords": [
+        "KEEYZNDPLL",
+        "appspot",
+        "firebaseapp",
+        "googleapis"
     ]
 }

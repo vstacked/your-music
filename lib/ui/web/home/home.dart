@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:your_music/constants/colors.dart';
+import 'package:your_music/providers/song_provider.dart';
 import 'package:your_music/ui/web/home/widgets/sidebar.dart';
 import 'package:your_music/ui/web/home/widgets/tab_home.dart';
 import 'widgets/queue.dart';
 import 'widgets/right_sidebar.dart';
+import 'package:provider/provider.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -18,7 +20,9 @@ class Home extends StatelessWidget {
       child: Scaffold(
         key: scaffoldKey,
         drawer: const SmallSidebar(),
+        drawerEnableOpenDragGesture: false,
         endDrawer: const SmallRightSidebar(),
+        endDrawerEnableOpenDragGesture: false,
         drawerScrimColor: overlayColor,
         body: Stack(
           children: [
@@ -37,7 +41,7 @@ class Home extends StatelessWidget {
                 RightSideBar()
               ],
             ),
-            const Queue()
+            if (context.watch<SongProvider>().queue.isNotEmpty) const Queue()
           ],
         ),
       ),

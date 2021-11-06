@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:your_music/constants/colors.dart';
 import 'package:your_music/providers/song_provider.dart';
@@ -47,33 +48,74 @@ class _DetailSong extends StatefulWidget {
   _DetailSongState createState() => _DetailSongState();
 }
 
-class _DetailSongState extends State<_DetailSong> with SingleTickerProviderStateMixin {
+class _DetailSongState extends State<_DetailSong> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _animationController;
-  bool isPlaying = false;
+  late final AudioPlayer audioPlayer;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance?.addObserver(this);
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
+    audioPlayer = AudioPlayer();
+    audioPlayer.playingStream.listen((event) {
+      if (event) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance?.addObserver(this);
     _animationController.dispose();
+    audioPlayer.dispose();
     super.dispose();
   }
 
-  void _handleOnPressed() {
-    setState(() {
-      isPlaying = !isPlaying;
-      isPlaying ? _animationController.forward() : _animationController.reverse();
-    });
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) audioPlayer.stop();
+  }
+
+  Future<void> _setAudio() async {
+    try {
+      Uri uri = Uri.parse(context.read<SongProvider>().openedSong!.song!.url!);
+      _animationController.reset();
+      await audioPlayer.stop();
+      await audioPlayer.setUrl(uri.toString());
+      await audioPlayer.load();
+    } catch (e) {
+      debugPrint('_setAudio()| $e');
+    }
+  }
+
+  void playAudio() async {
+    try {
+      if (_animationController.isCompleted && audioPlayer.playing) {
+        await audioPlayer.pause();
+      } else {
+        if (audioPlayer.processingState == ProcessingState.ready && !audioPlayer.playing) await audioPlayer.play();
+
+        audioPlayer.processingStateStream.listen((event) {
+          if (event == ProcessingState.completed && audioPlayer.playing) {
+            audioPlayer.pause();
+            audioPlayer.seek(Duration.zero);
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('playAudio() | $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final watch = context.watch<SongProvider>();
     final textTheme = Theme.of(context).textTheme;
+    if (mounted) _setAudio();
 
     return Material(
       color: primaryColor,
@@ -94,7 +136,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                       context: context,
                       barrierColor: overlayColor,
                       routeSettings: const RouteSettings(name: '/editSongDialog'),
-                      builder: editSong,
+                      builder: (context) => songDialog(isEdit: true, songModel: watch.openedSong),
                     );
                   },
                 ),
@@ -103,8 +145,13 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                   iconSize: 30,
                   color: greyColor,
                   onPressed: () {
-                    context.read<SongProvider>().setOpenedSong(null);
-                    if (scaffoldKey.currentState!.isEndDrawerOpen) Navigator.pop(context);
+                    if (scaffoldKey.currentState!.isEndDrawerOpen) {
+                      Navigator.pop(context);
+                    } else {
+                      context.read<SongProvider>().setOpenedSong(null);
+                    }
+
+                    if (audioPlayer.playing) audioPlayer.stop();
                   },
                 )
               ],
@@ -115,47 +162,41 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                   child: Column(
                     children: [
                       const SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: () {
-                          _handleOnPressed();
-                        },
-                        child: Container(
-                          height: 190,
-                          width: 190,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: const NetworkImage('https://placeimg.com/640/480/business'),
-                              fit: BoxFit.cover,
-                              colorFilter: ColorFilter.mode(overlayColor, BlendMode.multiply),
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: AnimatedIcon(
-                              icon: AnimatedIcons.play_pause,
-                              progress: _animationController,
-                              size: 40,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Material(
+                          child: InkWell(
+                            onTap: playAudio,
+                            child: Container(
+                              height: 190,
+                              width: 190,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: NetworkImage(watch.openedSong!.thumbnailUrl!),
+                                  fit: BoxFit.cover,
+                                  colorFilter: ColorFilter.mode(overlayColor, BlendMode.multiply),
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: AnimatedIcon(
+                                  icon: AnimatedIcons.play_pause,
+                                  progress: _animationController,
+                                  size: 40,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Text('Title Music ${watch.openedSong}', style: textTheme.headline6),
-                      Text('Singer ${watch.openedSong}', style: textTheme.subtitle1!.copyWith(color: greyColor)),
+                      Text(watch.openedSong!.title!, style: textTheme.headline6, textAlign: TextAlign.center),
+                      Text(watch.openedSong!.singer!,
+                          style: textTheme.subtitle1!.copyWith(color: greyColor), textAlign: TextAlign.center),
                       const SizedBox(height: 10),
-                      _detail(
-                        context,
-                        title: 'Description',
-                        content:
-                            '${watch.openedSong} Sint et aut modi eveniet nobis. Nihil dicta pariatur excepturi omnis. Esse quidem qui est. Velit odio consequatur quisquam facilis minima. Nostrum in iusto voluptatem deleniti. Sit ipsa iusto sed. Sed sint ipsam tempore dolorem accusamus magnam.Qui dolorum molestiae. Omnis quia in at dolores nisi et aut. Quaerat est delectus dolores omnis sit. Vel adipisci error saepe. Et fugit et qui nulla voluptas nesciunt. Autem pariatur molestias ut quaerat quia. ',
-                      ),
+                      _detail(context, title: 'Description', content: watch.openedSong!.description!),
                       const SizedBox(height: 20),
-                      _detail(
-                        context,
-                        title: 'Release Date',
-                        content:
-                            '${watch.openedSong} Sint et aut modi eveniet nobis. Nihil dicta pariatur excepturi omnis. Esse quidem qui est. Velit odio consequatur quisquam facilis minima. Nostrum in iusto voluptatem deleniti. Sit ipsa iusto sed. Sed sint ipsam tempore dolorem accusamus magnam.Qui dolorum molestiae. Omnis quia in at dolores nisi et aut. Quaerat est delectus dolores omnis sit. Vel adipisci error saepe. Et fugit et qui nulla voluptas nesciunt. Autem pariatur molestias ut quaerat quia. ',
-                      ),
+                      _detail(context, title: 'Lyric', content: watch.openedSong!.lyric!),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -173,12 +214,11 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(title, style: textTheme.bodyText1),
+        SizedBox(width: double.maxFinite, child: Text(title, style: textTheme.bodyText1)),
         Padding(
           padding: const EdgeInsets.only(left: 8),
           child: ReadMoreText(
-            content,
-            trimLines: 2,
+            content.isEmpty ? '-' : content,
             style: textTheme.bodyText2!.copyWith(color: greyColor),
             trimMode: TrimMode.Length,
             lessStyle: textTheme.bodyText2!.copyWith(color: blueColor),

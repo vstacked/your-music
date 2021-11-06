@@ -1,6 +1,11 @@
+import 'dart:collection';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:your_music/constants/colors.dart';
+import 'package:your_music/models/song_model.dart';
 import 'package:your_music/providers/song_provider.dart';
 import 'package:your_music/ui/web/home/widgets/dialogs.dart';
 import 'package:your_music/widgets/icon_button_widget.dart';
@@ -13,6 +18,8 @@ class TabHome extends StatelessWidget {
   const TabHome({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final read = context.read<SongProvider>();
+    final watch = context.watch<SongProvider>();
     final textTheme = Theme.of(context).textTheme;
     return RotatedBox(
       quarterTurns: -1,
@@ -28,14 +35,21 @@ class TabHome extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (watch.isRemoveLoading)
+                      const SizedBox(height: 15, width: 15, child: CupertinoActivityIndicator()),
+                    if (watch.isRemoveFailed)
+                      IconButtonWidget(
+                        icon: const Icon(Icons.refresh_rounded),
+                        color: redColor,
+                        onPressed: read.deleteSong,
+                      ),
                     IconButtonWidget(
                       icon: const Icon(Icons.delete, size: 35),
                       buttonText: 'Remove Selected',
-                      isOutlinedButton: context.watch<SongProvider>().isRemove,
+                      isOutlinedButton: watch.isRemove,
                       color: redColor,
                       onPressed: () {
-                        final _read = context.read<SongProvider>();
-                        if (_read.isRemove) {
+                        if (read.isRemove) {
                           showDialog(
                             context: context,
                             barrierColor: overlayColor,
@@ -43,7 +57,7 @@ class TabHome extends StatelessWidget {
                             builder: deleteSong,
                           );
                         } else {
-                          _read.setRemove(true);
+                          read.setRemove(true);
                         }
                       },
                     ),
@@ -56,7 +70,7 @@ class TabHome extends StatelessWidget {
                           context: context,
                           barrierColor: overlayColor,
                           routeSettings: const RouteSettings(name: '/addSongDialog'),
-                          builder: addSong,
+                          builder: (context) => songDialog(),
                         );
                       },
                     ),
@@ -110,13 +124,37 @@ class _GridItems extends StatelessWidget {
     return Flexible(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: RemoveScrollbar(
-          child: GridView.builder(
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount(context)),
-            itemCount: 100,
-            itemBuilder: (context, index) => _Item(titleIndex: index),
-          ),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: context.watch<SongProvider>().fetchSongs(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Something Went Wrong..',
+                  style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                ),
+              );
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return RemoveScrollbar(
+              child: GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount(context)),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  final song = snapshot.data!.docs[index];
+                  return _Item(
+                    song: SongModel.fromJson(Map.from(song.data() as LinkedHashMap)..remove('created_at'))
+                      ..id = song.id,
+                  );
+                },
+              ),
+            );
+          },
         ),
       ),
     );
@@ -134,46 +172,54 @@ class _GridItems extends StatelessWidget {
 }
 
 class _Item extends StatelessWidget {
-  const _Item({Key? key, required this.titleIndex}) : super(key: key);
-  final int titleIndex;
+  const _Item({Key? key, required this.song}) : super(key: key);
+  final SongModel song;
   @override
   Widget build(BuildContext context) {
     final watch = context.watch<SongProvider>();
     return Padding(
       padding: const EdgeInsets.all(5),
-      child: GestureDetector(
-        onTap: () {
-          final _read = context.read<SongProvider>();
-          if (_read.isRemove) {
-            _read.setRemoveIds(titleIndex);
-          } else {
-            _read.setOpenedSong(titleIndex);
-            if (ResponsiveLayout.isSmallScreen(context)) scaffoldKey.currentState!.openEndDrawer();
-          }
-        },
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: const NetworkImage('https://placeimg.com/640/480/business'),
-              fit: BoxFit.cover,
-              colorFilter: watch.isRemove ? ColorFilter.mode(overlayColor, BlendMode.multiply) : null,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Builder(
-            builder: (_) {
-              if (!watch.isRemove) return const SizedBox();
-              return Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Checkbox(
-                    value: watch.containsRemoveId(titleIndex),
-                    onChanged: (_) => context.read<SongProvider>().setRemoveIds(titleIndex),
-                  ),
-                ),
-              );
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              final _read = context.read<SongProvider>();
+              if (_read.isRemove) {
+                _read.setRemoveIds(song.id!);
+              } else {
+                if (_read.openedSong?.id == song.id) return;
+                _read.setOpenedSong(null);
+                _read.setOpenedSong(song);
+                if (ResponsiveLayout.isSmallScreen(context)) scaffoldKey.currentState!.openEndDrawer();
+              }
             },
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(song.thumbnailUrl!),
+                  fit: BoxFit.cover,
+                  colorFilter: watch.isRemove ? ColorFilter.mode(overlayColor, BlendMode.multiply) : null,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Builder(
+                builder: (_) {
+                  if (!watch.isRemove) return const SizedBox();
+                  return Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Checkbox(
+                        value: watch.containsRemoveId(song.id!),
+                        onChanged: (_) => context.read<SongProvider>().setRemoveIds(song.id!),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         ),
       ),

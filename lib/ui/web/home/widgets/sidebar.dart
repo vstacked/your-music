@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:your_music/constants/colors.dart';
+import 'package:your_music/utils/routes/routes.dart';
 import 'package:your_music/widgets/icon_button_widget.dart';
 import 'package:your_music/widgets/responsive_layout.dart';
+
+import '../home.dart';
 
 class Sidebar extends StatelessWidget {
   const Sidebar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    //* To close drawer sidebar
+    if (scaffoldKey.currentState!.isDrawerOpen && !ResponsiveLayout.isSmallScreen(context)) {
+      Future.delayed(const Duration(seconds: 0), () => Navigator.popUntil(context, ModalRoute.withName(Routes.home)));
+    }
+
     if (ResponsiveLayout.isMediumScreen(context)) {
       return const _MediumSidebar();
     } else if (ResponsiveLayout.isSmallScreen(context)) return const SizedBox();
