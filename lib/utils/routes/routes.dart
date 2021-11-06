@@ -11,7 +11,7 @@ class Routes {
   static const String login = '/login';
 
   static final routes = <String, WidgetBuilder>{
-    home: (BuildContext context) => kIsWeb ? const web.Home() : const android.Home(),
+    home: (BuildContext context) => (kIsWeb) ? const web.Home() : const android.Home(),
     login: (BuildContext context) => const Login(),
   };
 }
