@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_strategy/url_strategy.dart';
-import 'package:your_music/ui/web/my_app.dart';
+import 'package:your_music/ui/my_app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

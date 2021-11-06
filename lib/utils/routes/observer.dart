@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:your_music/providers/auth_provider.dart';
 import 'package:your_music/ui/web/home/home.dart';
 import 'package:your_music/ui/web/login/login.dart';
-import 'package:your_music/ui/web/my_app.dart';
+import 'package:your_music/ui/my_app.dart';
 import 'package:provider/provider.dart';
 import 'package:your_music/utils/routes/routes.dart';
 
