@@ -19,5 +19,10 @@
     ],
     "cSpell.enableFiletypes": [
         "dart"
+    ],
+    "cSpell.ignoreWords": [
+        "KEEYZNDPLL",
+        "appspot",
+        "firebaseapp"
     ]
 }
