@@ -2,14 +2,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:your_music/constants/app_theme.dart';
-import 'package:your_music/constants/colors.dart';
-import 'package:your_music/providers/auth_provider.dart';
-import 'package:your_music/providers/song_provider.dart';
-import 'package:your_music/utils/routes/observer.dart';
-import 'package:your_music/utils/routes/routes.dart';
+
+import '../constants/app_theme.dart';
+import '../constants/colors.dart';
+import '../providers/auth_provider.dart';
+import '../providers/song_provider.dart';
+import '../utils/routes/observer.dart';
+import '../utils/routes/routes.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final routeObserver = Observer.route;
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -39,18 +41,50 @@ class MyApp extends StatelessWidget {
               if (kIsWeb) ChangeNotifierProvider(create: (_) => AuthProvider()),
               ChangeNotifierProvider(create: (_) => SongProvider()),
             ],
-            child: MaterialApp(
-              title: 'Your Music',
-              theme: darkTheme,
-              navigatorKey: navigatorKey,
-              routes: Routes.routes,
-              navigatorObservers: [Observer()],
-            ),
+            builder: (context, child) {
+              return MaterialApp(
+                title: 'Your Music',
+                theme: darkTheme,
+                navigatorKey: navigatorKey,
+                routes: Routes.routes,
+                navigatorObservers: [routeObserver],
+                onGenerateInitialRoutes: (initialRoute) {
+                  bool isLogin = context.read<AuthProvider>().isLogin;
+                  if (kIsWeb && !isLogin) {
+                    return Navigator.defaultGenerateInitialRoutes(
+                        Navigator.of(navigatorKey.currentContext!), Routes.login);
+                  }
+                  return Navigator.defaultGenerateInitialRoutes(
+                      Navigator.of(navigatorKey.currentContext!), initialRoute);
+                },
+                // onGenerateRoute: (settings) {
+                //   debugPrint(settings.name);
+                // if (kIsWeb) {
+                //   bool isLogin = context.read<AuthProvider>().isLogin;
+                //   if (settings.name != Routes.login && !isLogin) {
+                //     return _CustomRoute(builder: (_) => const Login(), settings: settings);
+                //   } else if (settings.name == Routes.login && isLogin) {
+                //     return _CustomRoute(builder: (_) => const Home(), settings: settings);
+                //   }
+                // }
+                // },
+              );
+            },
           );
         }
 
-        return MaterialApp(theme: darkTheme, home: const Scaffold(body: Center(child: CircularProgressIndicator())));
+        return const SizedBox();
       },
     );
   }
+}
+
+class _CustomRoute<T> extends MaterialPageRoute<T> {
+  _CustomRoute({required WidgetBuilder builder, required RouteSettings settings})
+      : super(builder: builder, settings: settings);
+
+  @override
+  Widget buildTransitions(
+          BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) =>
+      child;
 }
