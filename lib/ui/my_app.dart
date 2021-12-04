@@ -57,17 +57,6 @@ class MyApp extends StatelessWidget {
                   return Navigator.defaultGenerateInitialRoutes(
                       Navigator.of(navigatorKey.currentContext!), initialRoute);
                 },
-                // onGenerateRoute: (settings) {
-                //   debugPrint(settings.name);
-                // if (kIsWeb) {
-                //   bool isLogin = context.read<AuthProvider>().isLogin;
-                //   if (settings.name != Routes.login && !isLogin) {
-                //     return _CustomRoute(builder: (_) => const Login(), settings: settings);
-                //   } else if (settings.name == Routes.login && isLogin) {
-                //     return _CustomRoute(builder: (_) => const Home(), settings: settings);
-                //   }
-                // }
-                // },
               );
             },
           );
@@ -77,14 +66,4 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-}
-
-class _CustomRoute<T> extends MaterialPageRoute<T> {
-  _CustomRoute({required WidgetBuilder builder, required RouteSettings settings})
-      : super(builder: builder, settings: settings);
-
-  @override
-  Widget buildTransitions(
-          BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) =>
-      child;
 }
