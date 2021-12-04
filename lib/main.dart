@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_strategy/url_strategy.dart';
-import 'package:your_music/constants/colors.dart';
-import 'package:your_music/ui/my_app.dart';
+
+import 'constants/colors.dart';
+import 'ui/my_app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,17 +14,21 @@ Future<void> main() async {
   setPathUrlStrategy();
   return runZonedGuarded(
     () async {
-      runApp(
-        FutureBuilder(
-          future: Future.delayed(const Duration(seconds: 3)),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const MaterialApp(home: _Splash());
-            }
-            return const MyApp();
-          },
-        ),
-      );
+      if (!kIsWeb) {
+        runApp(
+          FutureBuilder(
+            future: Future.delayed(const Duration(seconds: 3)),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const MaterialApp(home: _Splash());
+              }
+              return const MyApp();
+            },
+          ),
+        );
+      } else {
+        runApp(const MyApp());
+      }
     },
     (e, s) {
       //
