@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:your_music/ui/android/favorite.dart';
-import 'package:your_music/ui/android/home.dart' as android;
-import 'package:your_music/ui/web/home/home.dart' as web;
-import 'package:your_music/ui/web/login/login.dart';
+
+import '../../ui/android/favorite.dart';
+import '../../ui/android/home/home.dart' as android;
+import '../../ui/web/home/home.dart' as web;
+import '../../ui/web/login/login.dart';
 
 class Routes {
   Routes._();
