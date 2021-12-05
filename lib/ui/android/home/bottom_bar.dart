@@ -15,6 +15,7 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
+  // TODO refactor animation
 
   static const double _minHeight = 75;
   Offset _offset = const Offset(0, _minHeight);
@@ -66,8 +67,8 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
                 if (padding <= 16) padding += .5;
               }
 
-              if (_offset.dy > _minHeight + 75 && !_isOpen) {
-                Timer.periodic(const Duration(microseconds: 50), (timer) {
+              if (_offset.dy > _minHeight + 50 && !_isOpen) {
+                Timer.periodic(const Duration(microseconds: 1000), (timer) {
                   double value = _offset.dy + 10;
                   _offset = Offset(0, value);
 
@@ -107,7 +108,7 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
                       return NowPlaying(
                         onBackPressed: () {
                           if (_isOpen) {
-                            Timer.periodic(const Duration(microseconds: 50), (timer) {
+                            Timer.periodic(const Duration(microseconds: 1000), (timer) {
                               double value = _offset.dy - 10;
                               _offset = Offset(0, value);
 
