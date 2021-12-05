@@ -46,12 +46,9 @@ class NowPlaying extends StatelessWidget {
           slivers: [
             const SliverPadding(padding: EdgeInsets.only(top: 56)),
             const SliverToBoxAdapter(
-              child: Hero(
-                tag: 'image-playing',
-                child: CircleAvatar(
-                  radius: 75,
-                  backgroundImage: NetworkImage('http://placeimg.com/640/480/cats'),
-                ),
+              child: CircleAvatar(
+                radius: 75,
+                backgroundImage: NetworkImage('http://placeimg.com/640/480/cats'),
               ),
             ),
             SliverPadding(
@@ -59,13 +56,9 @@ class NowPlaying extends StatelessWidget {
               sliver: SliverToBoxAdapter(
                 child: Column(
                   children: <Widget>[
-                    Hero(
-                      tag: 'title-playing',
-                      child: Text(
-                        'Title',
-                        style:
-                            textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
-                      ),
+                    Text(
+                      'Title',
+                      style: textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
                     ),
                     const SizedBox(height: 8),
                     Text(

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import '../../../constants/colors.dart';
 import '../now_playing.dart';
@@ -12,11 +13,25 @@ class BottomBar extends StatefulWidget {
   _BottomBarState createState() => _BottomBarState();
 }
 
-class _BottomBarState extends State<BottomBar> {
+class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController;
+
   static const double _minHeight = 75;
   Offset _offset = const Offset(0, _minHeight);
   double padding = 16.0, width = 342;
   bool _isOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +62,7 @@ class _BottomBarState extends State<BottomBar> {
                 width += 5;
                 if (padding > 0) padding -= .5;
               } else if (!_isOpen) {
-                if (width > 300) width -= 5;
+                if (width > 342) width -= 5;
                 if (padding <= 16) padding += .5;
               }
 
@@ -101,6 +116,7 @@ class _BottomBarState extends State<BottomBar> {
 
                               if (_offset.dy < _minHeight) {
                                 _offset = const Offset(0, _minHeight);
+                                width = 342;
                                 timer.cancel();
                               }
 
@@ -128,25 +144,54 @@ class _BottomBarState extends State<BottomBar> {
           child: Material(
             color: Colors.transparent,
             child: ListTile(
-              leading: const Hero(
-                tag: 'image-playing',
-                child: CircleAvatar(
-                  maxRadius: 49,
-                  foregroundImage: NetworkImage('http://placeimg.com/640/480/transport'),
-                ),
+              leading: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SleekCircularSlider(
+                    appearance: CircularSliderAppearance(
+                      customWidths: CustomSliderWidths(trackWidth: 3, progressBarWidth: 3),
+                      customColors: CustomSliderColors(
+                          trackColor: Colors.transparent, progressBarColor: blueColor, hideShadow: true),
+                      size: 100,
+                      angleRange: 360,
+                      startAngle: 270,
+                      infoProperties: InfoProperties(modifier: (_) => ''),
+                      animationEnabled: false,
+                    ),
+                    initialValue: 75,
+                  ),
+                  const Opacity(
+                    opacity: .25,
+                    child: CircleAvatar(
+                      maxRadius: 24,
+                      foregroundImage: NetworkImage('http://placeimg.com/640/480/transport'),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      if (_animationController.isCompleted) {
+                        _animationController.reverse();
+                      } else {
+                        _animationController.forward();
+                      }
+                    },
+                    child: AnimatedIcon(
+                      icon: AnimatedIcons.play_pause,
+                      progress: _animationController,
+                      size: 40,
+                    ),
+                  )
+                ],
               ),
               minLeadingWidth: 0,
               horizontalTitleGap: 0,
               contentPadding: EdgeInsets.zero,
               minVerticalPadding: 0,
-              title: Hero(
-                tag: 'title-playing',
-                child: Text(
-                  'title',
-                  style: textTheme.subtitle1!.copyWith(color: greyColor),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+              title: Text(
+                'title',
+                style: textTheme.subtitle1!.copyWith(color: greyColor),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(
                 '03:40',
