@@ -49,10 +49,12 @@ class MyApp extends StatelessWidget {
                 routes: Routes.routes,
                 navigatorObservers: [routeObserver],
                 onGenerateInitialRoutes: (initialRoute) {
-                  bool isLogin = context.read<AuthProvider>().isLogin;
-                  if (kIsWeb && !isLogin) {
-                    return Navigator.defaultGenerateInitialRoutes(
-                        Navigator.of(navigatorKey.currentContext!), Routes.login);
+                  if (kIsWeb) {
+                    bool isLogin = context.read<AuthProvider>().isLogin;
+                    if (!isLogin) {
+                      return Navigator.defaultGenerateInitialRoutes(
+                          Navigator.of(navigatorKey.currentContext!), Routes.login);
+                    }
                   }
                   return Navigator.defaultGenerateInitialRoutes(
                       Navigator.of(navigatorKey.currentContext!), initialRoute);
