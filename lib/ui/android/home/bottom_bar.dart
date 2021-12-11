@@ -1,10 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import '../../../constants/colors.dart';
 import '../now_playing.dart';
+import 'song_card.dart';
 
 class BottomBar extends StatefulWidget {
   const BottomBar({Key? key}) : super(key: key);
@@ -14,30 +12,47 @@ class BottomBar extends StatefulWidget {
 }
 
 class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMixin {
-  late final AnimationController _animationController;
-  // TODO refactor animation
+  static const double _defaultHeight = 75, _defaultPadding = 16, _defaultRadius = 30;
 
-  static const double _minHeight = 75;
-  Offset _offset = const Offset(0, _minHeight);
-  double padding = 16.0, width = 342;
-  bool _isOpen = false;
+  late final AnimationController _controller;
+  late Animation<double> _animationHeight,
+      _animationPadding,
+      _animationRadius,
+      _animationFadePlayer,
+      _animationFadeDetail;
+
+  double _height = _defaultHeight, _padding = 16.0, _radius = 30;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
+    _controller = AnimationController(duration: const Duration(milliseconds: 350), vsync: this);
+
+    _animationPadding = Tween<double>(begin: _defaultPadding, end: 0)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _animationRadius = Tween<double>(begin: _defaultRadius, end: 0)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _animationFadePlayer =
+        Tween<double>(begin: 1, end: 0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _animationFadeDetail = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+
+    _controller.addListener(() {
+      setState(() {
+        _height = _animationHeight.value;
+        _padding = _animationPadding.value;
+        _radius = _animationRadius.value;
+      });
+    });
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final double _maxHeight = MediaQuery.of(context).size.height;
-    final TextTheme textTheme = Theme.of(context).textTheme;
     return Stack(
       children: [
         Align(
@@ -45,10 +60,10 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
           child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.transparent, secondaryColor.withOpacity(.3), secondaryColor],
+                colors: [secondaryColor.withOpacity(.25), secondaryColor],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                stops: const [.4, .65, 1],
+                stops: const [.05, .75],
               ),
             ),
             child: const SizedBox(height: 170, width: double.infinity),
@@ -56,153 +71,56 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
         ),
         Align(
           alignment: Alignment.bottomCenter,
-          child: GestureDetector(
-            onPanUpdate: (details) {
-              if (details.delta.dy.isNegative) {
-                _offset = Offset(0, _offset.dy - details.delta.dy);
-                width += 5;
-                if (padding > 0) padding -= .5;
-              } else if (!_isOpen) {
-                if (width > 342) width -= 5;
-                if (padding <= 16) padding += .5;
-              }
-
-              if (_offset.dy > _minHeight + 50 && !_isOpen) {
-                Timer.periodic(const Duration(microseconds: 1000), (timer) {
-                  double value = _offset.dy + 10;
-                  _offset = Offset(0, value);
-
-                  width += 5;
-                  if (padding > 0) padding -= .5;
-
-                  if (_offset.dy > _maxHeight) {
-                    _offset = Offset(0, _maxHeight);
-                    timer.cancel();
-                  }
-
-                  setState(() {});
-                });
-                _isOpen = true;
-              }
-
-              setState(() {});
-            },
-            child: AnimatedPadding(
-              padding: EdgeInsets.all(padding),
-              duration: Duration.zero,
-              child: SafeArea(
-                child: AnimatedContainer(
-                  duration: Duration.zero,
-                  curve: Curves.easeOut,
-                  height: _offset.dy,
-                  width: width,
-                  decoration: BoxDecoration(
-                    color: secondaryColor,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: const [BoxShadow(color: primaryColor, offset: Offset(0, 3), blurRadius: 6)],
-                  ),
-                  child: Builder(
-                    builder: (context) {
-                      if (!_isOpen) return _songCard(textTheme);
-
-                      return NowPlaying(
+          child: AnimatedPadding(
+            padding: EdgeInsets.all(_padding),
+            duration: Duration.zero,
+            child: SafeArea(
+              child: Container(
+                height: _height,
+                decoration: BoxDecoration(
+                  color: secondaryColor,
+                  borderRadius: BorderRadius.circular(_radius),
+                  boxShadow: const [BoxShadow(color: primaryColor, offset: Offset(0, 3), blurRadius: 6)],
+                ),
+                child: Stack(
+                  children: [
+                    FadeTransition(
+                      opacity: _animationFadeDetail,
+                      child: NowPlaying(
                         onBackPressed: () {
-                          if (_isOpen) {
-                            Timer.periodic(const Duration(microseconds: 1000), (timer) {
-                              double value = _offset.dy - 10;
-                              _offset = Offset(0, value);
-
-                              if (width > 300) width -= 5;
-                              if (padding <= 16) padding += .5;
-
-                              if (_offset.dy < _minHeight) {
-                                _offset = const Offset(0, _minHeight);
-                                width = 342;
-                                timer.cancel();
-                              }
-
-                              _isOpen = false;
-                              setState(() {});
-                            });
-                          }
+                          _animationHeight =
+                              Tween<double>(begin: _defaultHeight, end: MediaQuery.of(context).size.height)
+                                  .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+                          _controller.reverse();
                         },
-                      );
-                    },
-                  ),
+                      ),
+                    ),
+                    FadeTransition(
+                      opacity: _animationFadePlayer,
+                      child: IgnorePointer(
+                        ignoring: _animationFadePlayer.value == 0,
+                        child: SongCard(
+                          onPanUpdate: (details) {
+                            if (details.delta.dy.isNegative) {
+                              setState(() {
+                                _height += -details.delta.dy;
+                              });
+                            }
+                            if (_height >= 100) {
+                              _animationHeight = Tween<double>(begin: _height, end: MediaQuery.of(context).size.height)
+                                  .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+                              _controller.forward();
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Row _songCard(TextTheme textTheme) {
-    return Row(
-      children: <Widget>[
-        Flexible(
-          child: Material(
-            color: Colors.transparent,
-            child: ListTile(
-              leading: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SleekCircularSlider(
-                    appearance: CircularSliderAppearance(
-                      customWidths: CustomSliderWidths(trackWidth: 3, progressBarWidth: 3),
-                      customColors: CustomSliderColors(
-                          trackColor: Colors.transparent, progressBarColor: blueColor, hideShadow: true),
-                      size: 100,
-                      angleRange: 360,
-                      startAngle: 270,
-                      infoProperties: InfoProperties(modifier: (_) => ''),
-                      animationEnabled: false,
-                    ),
-                    initialValue: 75,
-                  ),
-                  const Opacity(
-                    opacity: .25,
-                    child: CircleAvatar(
-                      maxRadius: 24,
-                      foregroundImage: NetworkImage('http://placeimg.com/640/480/transport'),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      if (_animationController.isCompleted) {
-                        _animationController.reverse();
-                      } else {
-                        _animationController.forward();
-                      }
-                    },
-                    child: AnimatedIcon(
-                      icon: AnimatedIcons.play_pause,
-                      progress: _animationController,
-                      size: 40,
-                    ),
-                  )
-                ],
-              ),
-              minLeadingWidth: 0,
-              horizontalTitleGap: 0,
-              contentPadding: EdgeInsets.zero,
-              minVerticalPadding: 0,
-              title: Text(
-                'title',
-                style: textTheme.subtitle1!.copyWith(color: greyColor),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(
-                '03:40',
-                style: textTheme.caption!.copyWith(color: greyColor.withOpacity(.7)),
-              ),
-            ),
-          ),
-        ),
-        const Icon(Icons.keyboard_arrow_up, size: 35, color: greyColor),
-        const SizedBox(width: 32.9)
       ],
     );
   }
