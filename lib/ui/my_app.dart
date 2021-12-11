@@ -13,13 +13,25 @@ import '../utils/routes/routes.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final routeObserver = Observer.route;
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Future<FirebaseApp> _initialization;
+  @override
+  void initState() {
+    super.initState();
+    _initialization = Firebase.initializeApp();
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Firebase.initializeApp(),
+      future: _initialization,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return MaterialApp(
