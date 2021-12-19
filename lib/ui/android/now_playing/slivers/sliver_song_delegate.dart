@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../constants/colors.dart';
 import '../../../../utils/device/device_layout.dart';
-import '../slider_thumb_shape.dart';
+import '../shapes/slider_thumb_shape.dart';
 
 class SliverSongDelegate extends SliverPersistentHeaderDelegate {
   final double sliderValue;
