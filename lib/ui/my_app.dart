@@ -2,22 +2,36 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:your_music/constants/app_theme.dart';
-import 'package:your_music/constants/colors.dart';
-import 'package:your_music/providers/auth_provider.dart';
-import 'package:your_music/providers/song_provider.dart';
-import 'package:your_music/utils/routes/observer.dart';
-import 'package:your_music/utils/routes/routes.dart';
+
+import '../constants/app_theme.dart';
+import '../constants/colors.dart';
+import '../providers/auth_provider.dart';
+import '../providers/song_provider.dart';
+import '../utils/routes/observer.dart';
+import '../utils/routes/routes.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final routeObserver = Observer.route;
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Future<FirebaseApp> _initialization;
+  @override
+  void initState() {
+    super.initState();
+    _initialization = Firebase.initializeApp();
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Firebase.initializeApp(),
+      future: _initialization,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return MaterialApp(
@@ -39,17 +53,30 @@ class MyApp extends StatelessWidget {
               if (kIsWeb) ChangeNotifierProvider(create: (_) => AuthProvider()),
               ChangeNotifierProvider(create: (_) => SongProvider()),
             ],
-            child: MaterialApp(
-              title: 'Your Music',
-              theme: darkTheme,
-              navigatorKey: navigatorKey,
-              routes: Routes.routes,
-              navigatorObservers: [Observer()],
-            ),
+            builder: (context, child) {
+              return MaterialApp(
+                title: 'Your Music',
+                theme: darkTheme,
+                navigatorKey: navigatorKey,
+                routes: Routes.routes,
+                navigatorObservers: [routeObserver],
+                onGenerateInitialRoutes: (initialRoute) {
+                  if (kIsWeb) {
+                    bool isLogin = context.read<AuthProvider>().isLogin;
+                    if (!isLogin) {
+                      return Navigator.defaultGenerateInitialRoutes(
+                          Navigator.of(navigatorKey.currentContext!), Routes.login);
+                    }
+                  }
+                  return Navigator.defaultGenerateInitialRoutes(
+                      Navigator.of(navigatorKey.currentContext!), initialRoute);
+                },
+              );
+            },
           );
         }
 
-        return MaterialApp(theme: darkTheme, home: const Scaffold(body: Center(child: CircularProgressIndicator())));
+        return const SizedBox();
       },
     );
   }

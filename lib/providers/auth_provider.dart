@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:your_music/data/services/firebase_service.dart';
-import 'package:your_music/utils/routes/routes.dart';
+
+import '../data/services/firebase_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   AuthProvider() {
@@ -26,7 +26,7 @@ class AuthProvider extends ChangeNotifier {
 
     if (isLogin) {
       _isLogin = true;
-      Navigator.pushReplacementNamed(context, Routes.home);
+      Navigator.pop(context);
     } else {
       _errorMessage = 'Username or Password incorrect';
     }
