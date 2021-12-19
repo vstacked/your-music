@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../constants/colors.dart';
+import '../../../utils/device/device_layout.dart';
 import '../../../utils/routes/routes.dart';
 import '../song.dart';
 import 'bottom_bar.dart';
@@ -38,16 +39,29 @@ class Home extends StatelessWidget {
                   ),
                 ),
               ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (_, i) => const Song(),
-                  childCount: 100,
-                ),
-              )
+              if (isTablet(context))
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverGrid(
+                    delegate: SliverChildBuilderDelegate((_, i) => const Song(isCard: true), childCount: 100),
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                    ),
+                  ),
+                )
+              else
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (_, i) => const Song(),
+                    childCount: 100,
+                  ),
+                )
             ],
           ),
         ),
-        const BottomBar(),
+        BottomBar(padding: isTablet(context) ? 48 : 16),
       ],
     );
   }

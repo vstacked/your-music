@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../constants/colors.dart';
+import '../../utils/device/device_layout.dart';
 import 'song.dart';
 
 class Favorite extends StatelessWidget {
@@ -28,9 +29,24 @@ class Favorite extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView.builder(
-        itemCount: 100,
-        itemBuilder: (_, i) => const Song(),
+      body: Builder(
+        builder: (context) {
+          if (isTablet(context)) {
+            return GridView.builder(
+              itemBuilder: (_, i) => const Song(isCard: true),
+              itemCount: 100,
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 200,
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
+              ),
+            );
+          }
+          return ListView.builder(
+            itemCount: 100,
+            itemBuilder: (_, i) => const Song(),
+          );
+        },
       ),
     );
   }

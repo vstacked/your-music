@@ -5,14 +5,15 @@ import '../now_playing/now_playing.dart';
 import 'song_card.dart';
 
 class BottomBar extends StatefulWidget {
-  const BottomBar({Key? key}) : super(key: key);
+  final double padding;
+  const BottomBar({Key? key, required this.padding}) : super(key: key);
 
   @override
   _BottomBarState createState() => _BottomBarState();
 }
 
 class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMixin {
-  static const double _defaultHeight = 75, _defaultPadding = 16, _defaultRadius = 30;
+  static const double _defaultHeight = 75, _defaultRadius = 30;
 
   late final AnimationController _controller;
   late Animation<double> _animationHeight,
@@ -21,14 +22,15 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
       _animationFadePlayer,
       _animationFadeDetail;
 
-  double _height = _defaultHeight, _padding = 16.0, _radius = 30;
+  double _height = _defaultHeight, _radius = _defaultRadius;
+  late double _padding;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(duration: const Duration(milliseconds: 350), vsync: this);
 
-    _animationPadding = Tween<double>(begin: _defaultPadding, end: 0)
+    _animationPadding = Tween<double>(begin: widget.padding, end: 0)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _animationRadius = Tween<double>(begin: _defaultRadius, end: 0)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
@@ -53,6 +55,7 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    _padding = widget.padding;
     return Stack(
       children: [
         Align(
