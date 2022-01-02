@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
             providers: [
-              if (kIsWeb) ChangeNotifierProvider(create: (_) => AuthProvider()),
+              ChangeNotifierProvider(create: (_) => AuthProvider()),
               ChangeNotifierProvider(create: (_) => SongProvider()),
             ],
             builder: (context, child) {
