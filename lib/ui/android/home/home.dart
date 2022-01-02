@@ -12,7 +12,7 @@ import '../../../utils/routes/routes.dart';
 import 'song.dart';
 import 'bottom_bar/bottom_bar.dart';
 
-// TODO fetch data & local storage, retrieve notification, play audio, voice assistant
+// TODO local storage, retrieve notification, play audio, voice assistant
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
