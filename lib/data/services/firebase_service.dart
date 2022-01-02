@@ -5,10 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:your_music/models/song_model.dart';
 import 'package:http/http.dart' as http;
+
+import '../../main.dart';
+import '../../models/song_model.dart';
 
 enum MessageType { added, edited, deleted }
 
@@ -156,8 +157,7 @@ class FirebaseService {
       await http.post(
         Uri.https('fcm.googleapis.com', '/fcm/send'),
         headers: {
-          HttpHeaders.authorizationHeader:
-              'key=AAAAa-cEYLc:APA91bHQGUy1aLc1QMxM30gvpRVzLU-fjnT6ETAfTIlBzpq2ZZcmA1aqzPiZnT40UbAf0GKGrVlg9O70ObwUlqPATfXwkYu1zuE-HHJRAmbp1g1u8MhlWSXPTn5BE7FVzM7NlE2PbdIj',
+          HttpHeaders.authorizationHeader: dotenv.env['CLOUD_MESSAGING_KEY']!,
           HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
         },
         body: jsonEncode({

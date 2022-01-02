@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 import 'constants/colors.dart';
 import 'ui/my_app.dart';
 
+DotEnv dotenv = DotEnv();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setPreferredOrientations();
+  await dotenv.load(fileName: '.env');
   setPathUrlStrategy();
   return runZonedGuarded(
     () async {
