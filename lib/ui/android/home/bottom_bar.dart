@@ -28,6 +28,8 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
+    _padding = widget.padding;
+
     _controller = AnimationController(duration: const Duration(milliseconds: 350), vsync: this);
 
     _animationPadding = Tween<double>(begin: widget.padding, end: 0)
@@ -48,6 +50,15 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
   }
 
   @override
+  void didUpdateWidget(covariant BottomBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.padding != oldWidget.padding) {
+      _padding = widget.padding;
+      setState(() {});
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -55,7 +66,6 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    _padding = widget.padding;
     return Stack(
       children: [
         Align(
