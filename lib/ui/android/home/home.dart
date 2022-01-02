@@ -1,10 +1,16 @@
+import 'dart:collection';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../constants/colors.dart';
+import '../../../models/song_model.dart';
+import '../../../providers/song_provider.dart';
 import '../../../utils/device/device_layout.dart';
 import '../../../utils/routes/routes.dart';
-import '../song.dart';
-import 'bottom_bar.dart';
+import 'song.dart';
+import 'bottom_bar/bottom_bar.dart';
 
 // TODO fetch data & local storage, retrieve notification, play audio, voice assistant
 
@@ -41,29 +47,65 @@ class Home extends StatelessWidget {
                   ),
                 ),
               ),
-              if (isTablet(context))
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver: SliverGrid(
-                    delegate: SliverChildBuilderDelegate((_, i) => const Song(isCard: true), childCount: 100),
-                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200,
-                      mainAxisSpacing: 20,
-                      crossAxisSpacing: 20,
-                    ),
-                  ),
-                )
-              else
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (_, i) => const Song(),
-                    childCount: 100,
-                  ),
-                )
+              StreamBuilder<QuerySnapshot>(
+                stream: context.read<SongProvider>().fetchSongs(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (isTablet(context)) {
+                      return SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        sliver: SliverGrid(
+                          delegate: SliverChildBuilderDelegate(
+                            (_, i) {
+                              final song = snapshot.data!.docs[i];
+                              return Song(
+                                song: SongModel.fromJson(Map.from(song.data() as LinkedHashMap)..remove('created_at'))
+                                  ..id = song.id,
+                                isCard: true,
+                              );
+                            },
+                            childCount: snapshot.data!.docs.length,
+                          ),
+                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 200,
+                            mainAxisSpacing: 20,
+                            crossAxisSpacing: 20,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (_, i) {
+                            final song = snapshot.data!.docs[i];
+                            return Song(
+                              song: SongModel.fromJson(Map.from(song.data() as LinkedHashMap)..remove('created_at'))
+                                ..id = song.id,
+                            );
+                          },
+                          childCount: snapshot.data!.docs.length,
+                        ),
+                      );
+                    }
+                  }
+
+                  if (snapshot.hasError) {
+                    return SliverFillRemaining(
+                      child: Center(
+                        child: Text(
+                          'Something Went Wrong..',
+                          style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                        ),
+                      ),
+                    );
+                  }
+                  return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
+                },
+              ),
             ],
           ),
         ),
-        BottomBar(padding: isTablet(context) ? 48 : 16),
+        if (context.read<SongProvider>().playedSong != null) BottomBar(padding: isTablet(context) ? 48 : 16),
       ],
     );
   }

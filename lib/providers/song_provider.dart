@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:your_music/data/services/firebase_service.dart';
-import 'package:your_music/models/song_model.dart';
+
+import '../data/services/firebase_service.dart';
+import '../models/song_model.dart';
 
 class SongProvider extends ChangeNotifier {
   //
@@ -16,6 +17,9 @@ class SongProvider extends ChangeNotifier {
     _openedSong = value;
     notifyListeners();
   }
+
+  SongModel? _playedSong;
+  SongModel? get playedSong => _playedSong;
 
   bool get isOpen => _openedSong != null;
 

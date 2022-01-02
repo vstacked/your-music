@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../constants/colors.dart';
-import '../../utils/device/device_layout.dart';
+import '../../../constants/colors.dart';
+import '../../../models/song_model.dart';
+import '../../../utils/device/device_layout.dart';
 import 'song.dart';
 
 class Favorite extends StatelessWidget {
@@ -33,7 +34,7 @@ class Favorite extends StatelessWidget {
         builder: (context) {
           if (isTablet(context)) {
             return GridView.builder(
-              itemBuilder: (_, i) => const Song(isCard: true),
+              itemBuilder: (_, i) => Song(isCard: true, song: SongModel()),
               itemCount: 100,
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 200,
@@ -44,7 +45,7 @@ class Favorite extends StatelessWidget {
           }
           return ListView.builder(
             itemCount: 100,
-            itemBuilder: (_, i) => const Song(),
+            itemBuilder: (_, i) => Song(song: SongModel()),
           );
         },
       ),
