@@ -17,7 +17,7 @@ class SongModel {
   });
 
   String? id;
-  Song? song;
+  _Song? song;
   PlatformFile? songPlatformFile;
   PlatformFile? thumbnailPlatformFile;
   String? title;
@@ -33,7 +33,7 @@ class SongModel {
 
   factory SongModel.fromJson(Map<String, dynamic> json) => SongModel(
         id: json['id'],
-        song: json['song'] == null ? null : Song.fromJson(json['song']),
+        song: json['song'] == null ? null : _Song.fromJson(json['song']),
         title: json['title'],
         singer: json['singer'],
         lyric: json['lyric'],
@@ -52,17 +52,15 @@ class SongModel {
       };
 }
 
-class Song {
-  Song({this.name, this.url});
+class _Song {
+  _Song({this.name, this.url});
 
   String? name;
   String? url;
 
-  factory Song.fromRawJson(String str) => Song.fromJson(json.decode(str));
-
   String toRawJson() => json.encode(toJson());
 
-  factory Song.fromJson(Map<String, dynamic> json) => Song(name: json['name'], url: json['url']);
+  factory _Song.fromJson(Map<String, dynamic> json) => _Song(name: json['name'], url: json['url']);
 
   Map<String, dynamic> toJson() => {'name': name, 'url': url};
 }

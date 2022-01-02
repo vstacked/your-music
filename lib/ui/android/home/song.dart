@@ -1,17 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 
-import '../../constants/colors.dart';
+import '../../../constants/colors.dart';
+import '../../../models/song_model.dart';
 
 class Song extends StatefulWidget {
+  final SongModel song;
   final bool isCard;
-  const Song({Key? key, this.isCard = false}) : super(key: key);
+  const Song({Key? key, this.isCard = false, required this.song}) : super(key: key);
 
   @override
   _SongState createState() => _SongState();
 }
 
 class _SongState extends State<Song> {
+  late final AudioPlayer audioPlayer;
+  String duration = '';
   bool isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    audioPlayer = AudioPlayer();
+    _getDuration();
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
+  }
+
+  void _getDuration() async {
+    try {
+      Uri uri = Uri.parse(widget.song.song!.url!);
+      await audioPlayer.setUrl(uri.toString());
+      setState(() {
+        duration = audioPlayer.duration.toString().split('.').first.substring(2);
+      });
+    } catch (e) {
+      debugPrint('_getDuration() $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
@@ -22,7 +53,7 @@ class _SongState extends State<Song> {
         child: Ink(
           decoration: ShapeDecoration(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            image: const DecorationImage(image: NetworkImage('http://placeimg.com/640/480'), fit: BoxFit.cover),
+            image: DecorationImage(image: NetworkImage(widget.song.thumbnailUrl!), fit: BoxFit.cover),
           ),
           child: Align(
             alignment: Alignment.bottomCenter,
@@ -35,13 +66,13 @@ class _SongState extends State<Song> {
               ),
               child: ListTile(
                 title: Text(
-                  'Title',
+                  widget.song.title!,
                   style: textTheme.subtitle1!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(
-                  'Singer',
+                  widget.song.singer!,
                   style: textTheme.caption!.copyWith(color: greyColor),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -68,7 +99,7 @@ class _SongState extends State<Song> {
                         ),
                       ),
                       Text(
-                        '03:40',
+                        duration,
                         style: textTheme.bodyText2!.copyWith(color: greyColor),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -87,21 +118,18 @@ class _SongState extends State<Song> {
         height: 56,
         width: 56,
         decoration: BoxDecoration(
-          image: const DecorationImage(
-            image: NetworkImage('http://placeimg.com/640/480'),
-            fit: BoxFit.cover,
-          ),
+          image: DecorationImage(image: NetworkImage(widget.song.thumbnailUrl!), fit: BoxFit.cover),
           borderRadius: BorderRadius.circular(10),
         ),
       ),
       title: Text(
-        'Title',
+        widget.song.title!,
         style: textTheme.subtitle1!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        'Singer',
+        widget.song.singer!,
         style: textTheme.caption!.copyWith(color: greyColor),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
@@ -113,7 +141,7 @@ class _SongState extends State<Song> {
           children: <Widget>[
             Flexible(
               child: Text(
-                '03:40',
+                duration,
                 style: textTheme.bodyText2!.copyWith(color: greyColor),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

@@ -14,7 +14,9 @@ import '../../models/song_model.dart';
 enum MessageType { added, edited, deleted }
 
 class FirebaseService {
-  FirebaseService._();
+  FirebaseService._() {
+    _auth.signInAnonymously();
+  }
   static final instance = FirebaseService._();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -43,10 +45,7 @@ class FirebaseService {
       final data = await _adminAuth();
       if (data.isEmpty) throw Exception('Error Auth');
 
-      if (username == data['username'] && password == data['password']) {
-        await _auth.signInAnonymously();
-        return true;
-      }
+      if (username == data['username'] && password == data['password']) return true;
 
       return false;
     } catch (e) {

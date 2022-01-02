@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../ui/android/favorite.dart';
+import '../../ui/android/home/favorite.dart';
 import '../../ui/android/home/home.dart' as android;
 import '../../ui/web/home/home.dart' as web;
 import '../../ui/web/login/login.dart';
