@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../constants/colors.dart';
-import '../now_playing/now_playing.dart';
+import '../../../../constants/colors.dart';
+import '../../now_playing/now_playing.dart';
 import 'song_card.dart';
 
 class BottomBar extends StatefulWidget {
