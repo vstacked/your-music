@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:just_audio/just_audio.dart';
 
 import '../../main.dart';
 import '../../models/song_model.dart';
@@ -61,9 +62,13 @@ class FirebaseService {
       final _template = '${_auth.currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
 
       if (!isEdit) {
+        final AudioPlayer audioPlayer = AudioPlayer();
+
         final song = await _storage
             .ref('songs/$_template.${songModel.songPlatformFile!.name.split('.').last}')
             .putData(songModel.songPlatformFile!.bytes!);
+
+        await audioPlayer.setUrl(await song.ref.getDownloadURL());
 
         final thumbnail = await _storage
             .ref('thumbnails/$_template.${songModel.thumbnailPlatformFile!.name.split('.').last}')
@@ -75,6 +80,7 @@ class FirebaseService {
           'song': {
             'name': songModel.songPlatformFile!.name,
             'url': await song.ref.getDownloadURL(),
+            'duration': audioPlayer.duration.toString().split('.').first.substring(2),
           },
           'thumbnail_url': await thumbnail.ref.getDownloadURL(),
           'lyric': songModel.lyric ?? '',

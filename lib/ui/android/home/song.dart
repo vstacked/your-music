@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 
 import '../../../constants/colors.dart';
 import '../../../models/song_model.dart';
@@ -14,34 +13,7 @@ class Song extends StatefulWidget {
 }
 
 class _SongState extends State<Song> {
-  late final AudioPlayer audioPlayer;
-  String duration = '';
   bool isFavorite = false;
-
-  @override
-  void initState() {
-    super.initState();
-    audioPlayer = AudioPlayer();
-    _getDuration();
-  }
-
-  @override
-  void dispose() {
-    audioPlayer.dispose();
-    super.dispose();
-  }
-
-  void _getDuration() async {
-    try {
-      Uri uri = Uri.parse(widget.song.song!.url!);
-      await audioPlayer.setUrl(uri.toString());
-      setState(() {
-        duration = audioPlayer.duration.toString().split('.').first.substring(2);
-      });
-    } catch (e) {
-      debugPrint('_getDuration() $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +71,7 @@ class _SongState extends State<Song> {
                         ),
                       ),
                       Text(
-                        duration,
+                        widget.song.song!.duration ?? '-',
                         style: textTheme.bodyText2!.copyWith(color: greyColor),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -141,7 +113,7 @@ class _SongState extends State<Song> {
           children: <Widget>[
             Flexible(
               child: Text(
-                duration,
+                widget.song.song!.duration ?? '-',
                 style: textTheme.bodyText2!.copyWith(color: greyColor),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

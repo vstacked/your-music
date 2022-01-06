@@ -53,14 +53,16 @@ class SongModel {
 }
 
 class _Song {
-  _Song({this.name, this.url});
+  _Song({this.name, this.duration, this.url});
 
   String? name;
+  String? duration;
   String? url;
 
   String toRawJson() => json.encode(toJson());
 
-  factory _Song.fromJson(Map<String, dynamic> json) => _Song(name: json['name'], url: json['url']);
+  factory _Song.fromJson(Map<String, dynamic> json) =>
+      _Song(name: json['name'], duration: json['duration'], url: json['url']);
 
-  Map<String, dynamic> toJson() => {'name': name, 'url': url};
+  Map<String, dynamic> toJson() => {'name': name, 'duration': duration, 'url': url};
 }
