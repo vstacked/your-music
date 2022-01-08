@@ -7,9 +7,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:just_audio/just_audio.dart';
 
-import '../../main.dart';
 import '../../models/song_model.dart';
+import '../../utils/environment/env.dart';
 
 enum MessageType { added, edited, deleted }
 
@@ -54,16 +55,20 @@ class FirebaseService {
     }
   }
 
-  Future<bool> saveOrUpdateSong(SongModel songModel, {bool isEdit = false}) async {
+  Future<bool> saveOrUpdateSong(SongUpload songModel, {bool isEdit = false}) async {
     try {
       final _collection = _firestore.collection('songs');
 
       final _template = '${_auth.currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
 
+      final AudioPlayer audioPlayer = AudioPlayer();
+
       if (!isEdit) {
         final song = await _storage
             .ref('songs/$_template.${songModel.songPlatformFile!.name.split('.').last}')
             .putData(songModel.songPlatformFile!.bytes!);
+
+        await audioPlayer.setUrl(await song.ref.getDownloadURL());
 
         final thumbnail = await _storage
             .ref('thumbnails/$_template.${songModel.thumbnailPlatformFile!.name.split('.').last}')
@@ -72,13 +77,14 @@ class FirebaseService {
         await _collection.add({
           'title': songModel.title,
           'singer': songModel.singer,
-          'song': {
+          'file_detail': {
             'name': songModel.songPlatformFile!.name,
             'url': await song.ref.getDownloadURL(),
+            'duration': audioPlayer.duration.toString().split('.').first.substring(2),
           },
           'thumbnail_url': await thumbnail.ref.getDownloadURL(),
-          'lyric': songModel.lyric ?? '',
-          'description': songModel.description ?? '',
+          'lyric': songModel.lyric,
+          'description': songModel.description,
           'created_at': DateTime.now().toLocal(),
           'active': true,
         });
@@ -86,8 +92,8 @@ class FirebaseService {
         await _collection.doc(songModel.id).update({
           'title': songModel.title,
           'singer': songModel.singer,
-          'lyric': songModel.lyric ?? '',
-          'description': songModel.description ?? '',
+          'lyric': songModel.lyric,
+          'description': songModel.description,
         });
 
         if (songModel.songPlatformFile != null) {
@@ -95,10 +101,13 @@ class FirebaseService {
               .ref('songs/$_template.${songModel.songPlatformFile!.name.split('.').last}')
               .putData(songModel.songPlatformFile!.bytes!);
 
+          await audioPlayer.setUrl(await song.ref.getDownloadURL());
+
           await _collection.doc(songModel.id).update({
-            'song': {
+            'file_detail': {
               'name': songModel.songPlatformFile!.name,
               'url': await song.ref.getDownloadURL(),
+              'duration': audioPlayer.duration.toString().split('.').first.substring(2),
             }
           });
         }
@@ -156,7 +165,7 @@ class FirebaseService {
       await http.post(
         Uri.https('fcm.googleapis.com', '/fcm/send'),
         headers: {
-          HttpHeaders.authorizationHeader: dotenv.env['CLOUD_MESSAGING_KEY']!,
+          HttpHeaders.authorizationHeader: Env.cloudMessagingKey,
           HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
         },
         body: jsonEncode({

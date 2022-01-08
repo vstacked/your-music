@@ -45,8 +45,8 @@ class Queue extends StatelessWidget {
                   return Material(
                     color: Colors.transparent,
                     child: ListTile(
-                      title: Text(songWatch.queue[i].title!),
-                      subtitle: Text(songWatch.queue[i].singer!),
+                      title: Text(songWatch.queue[i].title),
+                      subtitle: Text(songWatch.queue[i].singer),
                       tileColor: !songWatch.queue[i].isError ? Colors.transparent : redColor,
                       trailing: !songWatch.queue[i].isError
                           ? const CupertinoActivityIndicator()

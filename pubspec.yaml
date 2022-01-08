@@ -42,13 +42,17 @@ dependencies:
   http: ^0.13.3
   sleek_circular_slider: ^2.0.1
   hive: ^2.0.5
-  flutter_dotenv: ^5.0.2
+  path_provider: ^2.0.4
+  envify: ^2.0.2
 
 dev_dependencies:
+  build_runner: ^2.1.2
+  envify_generator: ^2.0.0
   flutter_lints: ^1.0.4
   flutter_native_splash: ^1.2.3
   flutter_test:
     sdk: flutter
+  hive_generator: ^1.1.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

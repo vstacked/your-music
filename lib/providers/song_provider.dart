@@ -1,20 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 import '../data/services/firebase_service.dart';
+import '../models/favorite_model.dart';
 import '../models/song_model.dart';
 
 class SongProvider extends ChangeNotifier {
-  //
+  SongProvider() {
+    if (!kIsWeb) _getFavorite();
+  }
 
   final _firestoreService = FirebaseService.instance;
 
-  List<SongModel> queue = [];
+  List<SongUpload> queue = [];
+  List<FavoriteModel> _favorite = [];
 
-  SongModel? _openedSong;
-  SongModel? get openedSong => _openedSong;
+  List<FavoriteModel> get favorite => _favorite;
+
+  SongUpload? _openedSong;
+  SongUpload? get openedSong => _openedSong;
   void setOpenedSong(SongModel? value) {
-    _openedSong = value;
+    _openedSong = value != null ? SongUpload.fromJson(value.toJson()) : null;
     notifyListeners();
   }
 
@@ -49,7 +57,7 @@ class SongProvider extends ChangeNotifier {
 
   void clearRemoveIds() => _removeIds.clear();
 
-  Future<void> saveOrUpdateSong(SongModel song, {bool isEdit = false}) async {
+  Future<void> saveOrUpdateSong(SongUpload song, {bool isEdit = false}) async {
     _openedSong = null;
     if (queue.where((element) => element == song).isEmpty) queue.add(song);
     notifyListeners();
@@ -88,6 +96,38 @@ class SongProvider extends ChangeNotifier {
     }
     _isRemoveLoading = false;
     notifyListeners();
+  }
+
+  void _getFavorite() {
+    final box = Hive.box<FavoriteModel>('favorites');
+
+    _favorite = box.values.toList()
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt))
+      ..toList();
+
+    notifyListeners();
+  }
+
+  void setFavorite({required SongModel song, required bool isFavorite}) {
+    final box = Hive.box<FavoriteModel>('favorites');
+
+    final data = box.values.toList();
+    if (isFavorite && data.where((element) => element.id == song.id).isEmpty) {
+      box.add(
+        FavoriteModel(
+          id: song.id,
+          title: song.title,
+          singer: song.singer,
+          duration: song.fileDetail!.duration,
+          thumbnail: song.thumbnailUrl,
+          createdAt: DateTime.now(),
+        ),
+      );
+    } else {
+      box.deleteAt(data.indexWhere((element) => element.id == song.id));
+    }
+
+    _getFavorite();
   }
 
   Stream<QuerySnapshot> fetchSongs() => _firestoreService.fetchSongs();
