@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 
-import '../../main.dart';
 import '../../models/song_model.dart';
+import '../../utils/environment/env.dart';
 
 enum MessageType { added, edited, deleted }
 
@@ -165,7 +165,7 @@ class FirebaseService {
       await http.post(
         Uri.https('fcm.googleapis.com', '/fcm/send'),
         headers: {
-          HttpHeaders.authorizationHeader: dotenv.env['CLOUD_MESSAGING_KEY']!,
+          HttpHeaders.authorizationHeader: Env.cloudMessagingKey,
           HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
         },
         body: jsonEncode({

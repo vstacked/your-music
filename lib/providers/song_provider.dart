@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
@@ -10,7 +9,7 @@ import '../models/song_model.dart';
 
 class SongProvider extends ChangeNotifier {
   SongProvider() {
-    if (Platform.isAndroid) _getFavorite();
+    if (!kIsWeb) _getFavorite();
   }
 
   final _firestoreService = FirebaseService.instance;
