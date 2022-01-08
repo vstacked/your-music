@@ -1,41 +1,51 @@
-import 'dart:convert';
-
 import 'package:file_picker/file_picker.dart';
 
-// TODO remove nullable parameter ?
-
-class SongModel {
-  SongModel({
-    this.id,
+abstract class _BaseModel<T> {
+  _BaseModel({
+    this.id = '',
     this.fileDetail,
-    this.songPlatformFile,
-    this.thumbnailPlatformFile,
-    this.title,
-    this.singer,
-    this.lyric,
-    this.thumbnailUrl,
-    this.description,
-    this.isError = false,
+    this.title = '',
+    this.singer = '',
+    this.lyric = '',
+    this.thumbnailUrl = '',
+    this.description = '',
   });
 
-  String? id;
+  String id;
   FileDetail? fileDetail;
-  PlatformFile? songPlatformFile;
-  PlatformFile? thumbnailPlatformFile;
-  String? title;
-  String? singer;
-  String? lyric;
-  String? thumbnailUrl;
-  String? description;
-  bool isError;
+  String title;
+  String singer;
+  String lyric;
+  String thumbnailUrl;
+  String description;
 
-  factory SongModel.fromRawJson(String str) => SongModel.fromJson(json.decode(str));
+  // T fromJson(Map<String, dynamic> json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson();
+}
+
+class SongModel extends _BaseModel<SongModel> {
+  SongModel({
+    String id = '',
+    FileDetail? fileDetail,
+    String title = '',
+    String singer = '',
+    String lyric = '',
+    String thumbnailUrl = '',
+    String description = '',
+  }) : super(
+          id: id,
+          fileDetail: fileDetail,
+          title: title,
+          singer: singer,
+          lyric: lyric,
+          thumbnailUrl: thumbnailUrl,
+          description: description,
+        );
 
   factory SongModel.fromJson(Map<String, dynamic> json) => SongModel(
-        id: json['id'],
-        fileDetail: json['song'] == null ? null : FileDetail.fromJson(json['song']),
+        id: json['id'] ?? '',
+        fileDetail: json['file_detail'] == null ? null : FileDetail.fromJson(json['file_detail']),
         title: json['title'],
         singer: json['singer'],
         lyric: json['lyric'],
@@ -43,9 +53,10 @@ class SongModel {
         description: json['description'],
       );
 
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
-        'song': fileDetail == null ? null : fileDetail!.toJson(),
+        'file_detail': fileDetail == null ? null : fileDetail!.toJson(),
         'title': title,
         'singer': singer,
         'lyric': lyric,
@@ -54,14 +65,64 @@ class SongModel {
       };
 }
 
+class SongUpload extends _BaseModel<SongUpload> {
+  SongUpload({
+    String id = '',
+    FileDetail? fileDetail,
+    String title = '',
+    String singer = '',
+    String lyric = '',
+    String thumbnailUrl = '',
+    String description = '',
+    this.songPlatformFile,
+    this.thumbnailPlatformFile,
+    this.isError = false,
+  }) : super(
+          id: id,
+          fileDetail: fileDetail,
+          title: title,
+          singer: singer,
+          lyric: lyric,
+          thumbnailUrl: thumbnailUrl,
+          description: description,
+        );
+
+  PlatformFile? songPlatformFile;
+  PlatformFile? thumbnailPlatformFile;
+  bool isError;
+
+  factory SongUpload.fromJson(Map<String, dynamic> json) => SongUpload(
+        fileDetail: json['file_detail'] == null ? null : FileDetail.fromJson(json['file_detail']),
+        title: json['title'],
+        singer: json['singer'],
+        lyric: json['lyric'],
+        thumbnailUrl: json['thumbnail_url'],
+        description: json['description'],
+        songPlatformFile: json['song_platform_file'],
+        thumbnailPlatformFile: json['thumbnail_platform_file'],
+        isError: json['is_error'] ?? false,
+      );
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'file_detail': fileDetail == null ? null : fileDetail!.toJson(),
+        'title': title,
+        'singer': singer,
+        'lyric': lyric,
+        'thumbnail_url': thumbnailUrl,
+        'description': description,
+        'song_platform_file': songPlatformFile,
+        'thumbnail_platform_file': thumbnailPlatformFile,
+        'is_error': isError,
+      };
+}
+
 class FileDetail {
-  FileDetail({this.name, this.duration, this.url});
+  FileDetail({this.name = '-', this.duration = '-', this.url = ''});
 
-  String? name;
-  String? duration;
-  String? url;
-
-  String toRawJson() => json.encode(toJson());
+  String name;
+  String duration;
+  String url;
 
   factory FileDetail.fromJson(Map<String, dynamic> json) =>
       FileDetail(name: json['name'], duration: json['duration'], url: json['url']);

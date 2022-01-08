@@ -82,7 +82,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
 
   Future<void> _setAudio() async {
     try {
-      Uri uri = Uri.parse(context.read<SongProvider>().openedSong!.fileDetail!.url!);
+      Uri uri = Uri.parse(context.read<SongProvider>().openedSong!.fileDetail!.url);
       _animationController.reset();
       await audioPlayer.stop();
       await audioPlayer.setUrl(uri.toString());
@@ -136,7 +136,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                       context: context,
                       barrierColor: overlayColor,
                       routeSettings: const RouteSettings(name: '/editSongDialog'),
-                      builder: (context) => songDialog(isEdit: true, songModel: watch.openedSong),
+                      builder: (context) => songDialog(isEdit: true, songModel: watch.openedSong!),
                     );
                   },
                 ),
@@ -172,7 +172,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                               width: 190,
                               decoration: BoxDecoration(
                                 image: DecorationImage(
-                                  image: NetworkImage(watch.openedSong!.thumbnailUrl!),
+                                  image: NetworkImage(watch.openedSong!.thumbnailUrl),
                                   fit: BoxFit.cover,
                                   colorFilter: ColorFilter.mode(overlayColor, BlendMode.multiply),
                                 ),
@@ -190,13 +190,13 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Text(watch.openedSong!.title!, style: textTheme.headline6, textAlign: TextAlign.center),
-                      Text(watch.openedSong!.singer!,
+                      Text(watch.openedSong!.title, style: textTheme.headline6, textAlign: TextAlign.center),
+                      Text(watch.openedSong!.singer,
                           style: textTheme.subtitle1!.copyWith(color: greyColor), textAlign: TextAlign.center),
                       const SizedBox(height: 10),
-                      _detail(context, title: 'Description', content: watch.openedSong!.description!),
+                      _detail(context, title: 'Description', content: watch.openedSong!.description),
                       const SizedBox(height: 20),
-                      _detail(context, title: 'Lyric', content: watch.openedSong!.lyric!),
+                      _detail(context, title: 'Lyric', content: watch.openedSong!.lyric),
                       const SizedBox(height: 20),
                     ],
                   ),

@@ -187,7 +187,7 @@ class _Item extends StatelessWidget {
             onTap: () {
               final _read = context.read<SongProvider>();
               if (_read.isRemove) {
-                _read.setRemoveIds(song.id!);
+                _read.setRemoveIds(song.id);
               } else {
                 if (_read.openedSong?.id == song.id) return;
                 _read.setOpenedSong(null);
@@ -198,7 +198,7 @@ class _Item extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(song.thumbnailUrl!),
+                  image: NetworkImage(song.thumbnailUrl),
                   fit: BoxFit.cover,
                   colorFilter: watch.isRemove ? ColorFilter.mode(overlayColor, BlendMode.multiply) : null,
                 ),
@@ -212,8 +212,8 @@ class _Item extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.topRight,
                       child: Checkbox(
-                        value: watch.containsRemoveId(song.id!),
-                        onChanged: (_) => context.read<SongProvider>().setRemoveIds(song.id!),
+                        value: watch.containsRemoveId(song.id),
+                        onChanged: (_) => context.read<SongProvider>().setRemoveIds(song.id),
                       ),
                     ),
                   );

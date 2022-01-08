@@ -52,10 +52,10 @@ AlertDialog deleteSong(BuildContext context) {
   );
 }
 
-Widget songDialog({bool isEdit = false, SongModel? songModel}) {
+Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
   final _formKey = GlobalKey<FormState>();
   String? _songEmpty, _thumbnailEmpty;
-  SongModel _songModel = songModel ?? SongModel();
+  SongUpload _songModel = songModel ?? SongUpload();
 
   Widget button(BuildContext context, void Function(void Function()) state) {
     return _button(
@@ -321,7 +321,7 @@ OutlinedButton _chooseFile(Size size, {required VoidCallback onPressed}) {
 }
 
 Column _thumbnail(double size, TextTheme textTheme,
-    {required void Function(PlatformFile data) result, String? urlPath, Uint8List? bytes, String? errorText}) {
+    {required void Function(PlatformFile data) result, String urlPath = '', Uint8List? bytes, String? errorText}) {
   return Column(
     children: [
       Container(
@@ -330,7 +330,7 @@ Column _thumbnail(double size, TextTheme textTheme,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: greyColor,
-          image: urlPath != null && bytes == null
+          image: urlPath.isNotEmpty && bytes == null
               ? DecorationImage(image: NetworkImage(urlPath), fit: BoxFit.cover)
               : (bytes != null ? DecorationImage(image: MemoryImage(bytes), fit: BoxFit.cover) : null),
         ),

@@ -15,15 +15,15 @@ class SongProvider extends ChangeNotifier {
 
   final _firestoreService = FirebaseService.instance;
 
-  List<SongModel> queue = [];
+  List<SongUpload> queue = [];
   List<FavoriteModel> _favorite = [];
 
   List<FavoriteModel> get favorite => _favorite;
 
-  SongModel? _openedSong;
-  SongModel? get openedSong => _openedSong;
+  SongUpload? _openedSong;
+  SongUpload? get openedSong => _openedSong;
   void setOpenedSong(SongModel? value) {
-    _openedSong = value;
+    _openedSong = value != null ? SongUpload.fromJson(value.toJson()) : null;
     notifyListeners();
   }
 
@@ -58,7 +58,7 @@ class SongProvider extends ChangeNotifier {
 
   void clearRemoveIds() => _removeIds.clear();
 
-  Future<void> saveOrUpdateSong(SongModel song, {bool isEdit = false}) async {
+  Future<void> saveOrUpdateSong(SongUpload song, {bool isEdit = false}) async {
     _openedSong = null;
     if (queue.where((element) => element == song).isEmpty) queue.add(song);
     notifyListeners();
@@ -116,11 +116,11 @@ class SongProvider extends ChangeNotifier {
     if (isFavorite && data.where((element) => element.id == song.id).isEmpty) {
       box.add(
         FavoriteModel(
-          id: song.id!,
-          title: song.title!,
-          singer: song.singer!,
-          duration: song.fileDetail!.duration ?? '-',
-          thumbnail: song.thumbnailUrl!,
+          id: song.id,
+          title: song.title,
+          singer: song.singer,
+          duration: song.fileDetail!.duration,
+          thumbnail: song.thumbnailUrl,
           createdAt: DateTime.now(),
         ),
       );

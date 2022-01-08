@@ -31,7 +31,7 @@ class _SongState extends State<Song> {
           child: Ink(
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              image: DecorationImage(image: NetworkImage(widget.song.thumbnailUrl!), fit: BoxFit.cover),
+              image: DecorationImage(image: NetworkImage(widget.song.thumbnailUrl), fit: BoxFit.cover),
             ),
             child: Align(
               alignment: Alignment.bottomCenter,
@@ -44,13 +44,13 @@ class _SongState extends State<Song> {
                 ),
                 child: ListTile(
                   title: Text(
-                    widget.song.title!,
+                    widget.song.title,
                     style: textTheme.subtitle1!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: Text(
-                    widget.song.singer!,
+                    widget.song.singer,
                     style: textTheme.caption!.copyWith(color: greyColor),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -78,7 +78,7 @@ class _SongState extends State<Song> {
                           ),
                         ),
                         Text(
-                          widget.song.fileDetail!.duration ?? '-',
+                          widget.song.fileDetail!.duration,
                           style: textTheme.bodyText2!.copyWith(color: greyColor),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -100,18 +100,18 @@ class _SongState extends State<Song> {
           height: 56,
           width: 56,
           decoration: BoxDecoration(
-            image: DecorationImage(image: NetworkImage(widget.song.thumbnailUrl!), fit: BoxFit.cover),
+            image: DecorationImage(image: NetworkImage(widget.song.thumbnailUrl), fit: BoxFit.cover),
             borderRadius: BorderRadius.circular(10),
           ),
         ),
         title: Text(
-          widget.song.title!,
+          widget.song.title,
           style: textTheme.subtitle1!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
-          widget.song.singer!,
+          widget.song.singer,
           style: textTheme.caption!.copyWith(color: greyColor),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -123,7 +123,7 @@ class _SongState extends State<Song> {
             children: <Widget>[
               Flexible(
                 child: Text(
-                  widget.song.fileDetail!.duration ?? '-',
+                  widget.song.fileDetail!.duration,
                   style: textTheme.bodyText2!.copyWith(color: greyColor),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

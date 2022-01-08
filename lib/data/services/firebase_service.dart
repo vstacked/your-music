@@ -55,15 +55,15 @@ class FirebaseService {
     }
   }
 
-  Future<bool> saveOrUpdateSong(SongModel songModel, {bool isEdit = false}) async {
+  Future<bool> saveOrUpdateSong(SongUpload songModel, {bool isEdit = false}) async {
     try {
       final _collection = _firestore.collection('songs');
 
       final _template = '${_auth.currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
 
-      if (!isEdit) {
-        final AudioPlayer audioPlayer = AudioPlayer();
+      final AudioPlayer audioPlayer = AudioPlayer();
 
+      if (!isEdit) {
         final song = await _storage
             .ref('songs/$_template.${songModel.songPlatformFile!.name.split('.').last}')
             .putData(songModel.songPlatformFile!.bytes!);
@@ -77,14 +77,14 @@ class FirebaseService {
         await _collection.add({
           'title': songModel.title,
           'singer': songModel.singer,
-          'song': {
+          'file_detail': {
             'name': songModel.songPlatformFile!.name,
             'url': await song.ref.getDownloadURL(),
             'duration': audioPlayer.duration.toString().split('.').first.substring(2),
           },
           'thumbnail_url': await thumbnail.ref.getDownloadURL(),
-          'lyric': songModel.lyric ?? '',
-          'description': songModel.description ?? '',
+          'lyric': songModel.lyric,
+          'description': songModel.description,
           'created_at': DateTime.now().toLocal(),
           'active': true,
         });
@@ -92,8 +92,8 @@ class FirebaseService {
         await _collection.doc(songModel.id).update({
           'title': songModel.title,
           'singer': songModel.singer,
-          'lyric': songModel.lyric ?? '',
-          'description': songModel.description ?? '',
+          'lyric': songModel.lyric,
+          'description': songModel.description,
         });
 
         if (songModel.songPlatformFile != null) {
@@ -101,10 +101,13 @@ class FirebaseService {
               .ref('songs/$_template.${songModel.songPlatformFile!.name.split('.').last}')
               .putData(songModel.songPlatformFile!.bytes!);
 
+          await audioPlayer.setUrl(await song.ref.getDownloadURL());
+
           await _collection.doc(songModel.id).update({
-            'song': {
+            'file_detail': {
               'name': songModel.songPlatformFile!.name,
               'url': await song.ref.getDownloadURL(),
+              'duration': audioPlayer.duration.toString().split('.').first.substring(2),
             }
           });
         }
