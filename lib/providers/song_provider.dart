@@ -1,15 +1,24 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 import '../data/services/firebase_service.dart';
+import '../models/favorite_model.dart';
 import '../models/song_model.dart';
 
 class SongProvider extends ChangeNotifier {
-  //
+  SongProvider() {
+    if (Platform.isAndroid) _getFavorite();
+  }
 
   final _firestoreService = FirebaseService.instance;
 
   List<SongModel> queue = [];
+  List<FavoriteModel> _favorite = [];
+
+  List<FavoriteModel> get favorite => _favorite;
 
   SongModel? _openedSong;
   SongModel? get openedSong => _openedSong;
@@ -88,6 +97,38 @@ class SongProvider extends ChangeNotifier {
     }
     _isRemoveLoading = false;
     notifyListeners();
+  }
+
+  void _getFavorite() {
+    final box = Hive.box<FavoriteModel>('favorites');
+
+    _favorite = box.values.toList()
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt))
+      ..toList();
+
+    notifyListeners();
+  }
+
+  void setFavorite({required SongModel song, required bool isFavorite}) {
+    final box = Hive.box<FavoriteModel>('favorites');
+
+    final data = box.values.toList();
+    if (isFavorite && data.where((element) => element.id == song.id).isEmpty) {
+      box.add(
+        FavoriteModel(
+          id: song.id!,
+          title: song.title!,
+          singer: song.singer!,
+          duration: song.fileDetail!.duration ?? '-',
+          thumbnail: song.thumbnailUrl!,
+          createdAt: DateTime.now(),
+        ),
+      );
+    } else {
+      box.deleteAt(data.indexWhere((element) => element.id == song.id));
+    }
+
+    _getFavorite();
   }
 
   Stream<QuerySnapshot> fetchSongs() => _firestoreService.fetchSongs();

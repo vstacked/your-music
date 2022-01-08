@@ -82,7 +82,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
 
   Future<void> _setAudio() async {
     try {
-      Uri uri = Uri.parse(context.read<SongProvider>().openedSong!.song!.url!);
+      Uri uri = Uri.parse(context.read<SongProvider>().openedSong!.fileDetail!.url!);
       _animationController.reset();
       await audioPlayer.stop();
       await audioPlayer.setUrl(uri.toString());

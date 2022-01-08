@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 
+// TODO remove nullable parameter ?
+
 class SongModel {
   SongModel({
     this.id,
-    this.song,
+    this.fileDetail,
     this.songPlatformFile,
     this.thumbnailPlatformFile,
     this.title,
@@ -17,7 +19,7 @@ class SongModel {
   });
 
   String? id;
-  _Song? song;
+  FileDetail? fileDetail;
   PlatformFile? songPlatformFile;
   PlatformFile? thumbnailPlatformFile;
   String? title;
@@ -33,7 +35,7 @@ class SongModel {
 
   factory SongModel.fromJson(Map<String, dynamic> json) => SongModel(
         id: json['id'],
-        song: json['song'] == null ? null : _Song.fromJson(json['song']),
+        fileDetail: json['song'] == null ? null : FileDetail.fromJson(json['song']),
         title: json['title'],
         singer: json['singer'],
         lyric: json['lyric'],
@@ -43,7 +45,7 @@ class SongModel {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'song': song == null ? null : song!.toJson(),
+        'song': fileDetail == null ? null : fileDetail!.toJson(),
         'title': title,
         'singer': singer,
         'lyric': lyric,
@@ -52,8 +54,8 @@ class SongModel {
       };
 }
 
-class _Song {
-  _Song({this.name, this.duration, this.url});
+class FileDetail {
+  FileDetail({this.name, this.duration, this.url});
 
   String? name;
   String? duration;
@@ -61,8 +63,8 @@ class _Song {
 
   String toRawJson() => json.encode(toJson());
 
-  factory _Song.fromJson(Map<String, dynamic> json) =>
-      _Song(name: json['name'], duration: json['duration'], url: json['url']);
+  factory FileDetail.fromJson(Map<String, dynamic> json) =>
+      FileDetail(name: json['name'], duration: json['duration'], url: json['url']);
 
   Map<String, dynamic> toJson() => {'name': name, 'duration': duration, 'url': url};
 }
