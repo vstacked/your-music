@@ -39,45 +39,54 @@ class Favorite extends StatelessWidget {
         stream: context.read<SongProvider>().fetchSongs(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            final song = snapshot.data!.docs
-                .map((e) => SongModel.fromJson(Map.from(e.data() as LinkedHashMap)..remove('created_at'))..id = e.id)
-                .toList();
-
-            final favorite = context.read<SongProvider>().favorite.map((e) {
-              final x = song.where((element) => element.id == e.id);
-              return x.isNotEmpty
-                  ? x.first
-                  : SongModel(
-                      id: e.id,
-                      thumbnailUrl: e.thumbnail,
-                      title: e.title,
-                      singer: e.singer,
-                      fileDetail: FileDetail(duration: e.duration),
-                    );
-            }).toList();
-
-            if (isTablet(context)) {
-              return GridView.builder(
-                itemBuilder: (_, i) => Song(
-                  isCard: true,
-                  song: favorite[i],
-                  isDisable: song.where((element) => element.id == favorite[i].id).isEmpty,
-                ),
-                itemCount: favorite.length,
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 200,
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 20,
+            if (snapshot.data!.docs.isEmpty) {
+              return Center(
+                child: Text(
+                  'Song Empty..',
+                  style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
                 ),
               );
             } else {
-              return ListView.builder(
-                itemCount: favorite.length,
-                itemBuilder: (_, i) => Song(
-                  song: favorite[i],
-                  isDisable: song.where((element) => element.id == favorite[i].id).isEmpty,
-                ),
-              );
+              final song = snapshot.data!.docs
+                  .map((e) => SongModel.fromJson(Map.from(e.data() as LinkedHashMap)..remove('created_at'))..id = e.id)
+                  .toList();
+
+              final favorite = context.read<SongProvider>().favorite.map((e) {
+                final x = song.where((element) => element.id == e.id);
+                return x.isNotEmpty
+                    ? x.first
+                    : SongModel(
+                        id: e.id,
+                        thumbnailUrl: e.thumbnail,
+                        title: e.title,
+                        singer: e.singer,
+                        fileDetail: FileDetail(duration: e.duration),
+                      );
+              }).toList();
+
+              if (isTablet(context)) {
+                return GridView.builder(
+                  itemBuilder: (_, i) => Song(
+                    isCard: true,
+                    song: favorite[i],
+                    isDisable: song.where((element) => element.id == favorite[i].id).isEmpty,
+                  ),
+                  itemCount: favorite.length,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 20,
+                  ),
+                );
+              } else {
+                return ListView.builder(
+                  itemCount: favorite.length,
+                  itemBuilder: (_, i) => Song(
+                    song: favorite[i],
+                    isDisable: song.where((element) => element.id == favorite[i].id).isEmpty,
+                  ),
+                );
+              }
             }
           }
 

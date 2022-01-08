@@ -51,7 +51,16 @@ class Home extends StatelessWidget {
                 stream: context.read<SongProvider>().fetchSongs(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    if (isTablet(context)) {
+                    if (snapshot.data!.docs.isEmpty) {
+                      return SliverFillRemaining(
+                        child: Center(
+                          child: Text(
+                            'Song Empty..',
+                            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                          ),
+                        ),
+                      );
+                    } else if (isTablet(context)) {
                       return SliverPadding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         sliver: SliverGrid(

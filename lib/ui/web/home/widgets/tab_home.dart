@@ -140,6 +140,15 @@ class _GridItems extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
 
+            if (snapshot.hasData && snapshot.data!.docs.isEmpty) {
+              return Center(
+                child: Text(
+                  'Song Empty..',
+                  style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                ),
+              );
+            }
+
             return RemoveScrollbar(
               child: GridView.builder(
                 shrinkWrap: true,
