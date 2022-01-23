@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:just_audio/just_audio.dart';
 
 import '../../models/song_model.dart';
 import '../../utils/environment/env.dart';
+import 'notification_service.dart';
 
 enum MessageType { added, edited, deleted }
 
@@ -24,6 +26,7 @@ class FirebaseService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final NotificationService _notification = NotificationService.instance;
 
   Future<Map<String, dynamic>> _adminAuth() async {
     final data = await _firestore.collection('admin').get();
@@ -143,7 +146,7 @@ class FirebaseService {
   Stream<QuerySnapshot> fetchSongs() =>
       _firestore.collection('songs').where('active', isEqualTo: true).orderBy('created_at').snapshots();
 
-  Future<void> sendMessage({required MessageType type, required String title}) async {
+  Future<void> sendMessage({required MessageType type, required String title, String songId = ''}) async {
     try {
       String msgId, body;
 
@@ -171,11 +174,27 @@ class FirebaseService {
         body: jsonEncode({
           'to': '/topics/messaging',
           'notification': {'title': 'Your Music', 'body': body},
-          'data': {'msgId': msgId}
+          'data': {'msg_id': msgId, 'song_id': songId}
         }),
       );
     } catch (e) {
       debugPrint(e.toString());
     }
   }
+
+  Future<void> initMessaging() async {
+    _messaging.subscribeToTopic('messaging');
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      _notification.show(message: event);
+    });
+    FirebaseMessaging.onBackgroundMessage(_messageHandler);
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      _notification.selectNotification(jsonEncode(event.data));
+    });
+  }
+}
+
+Future<void> _messageHandler(_) async {
+  await Firebase.initializeApp();
 }

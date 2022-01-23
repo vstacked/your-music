@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../constants/colors.dart';
 import '../../../models/song_model.dart';
 import '../../../providers/song_provider.dart';
+import '../../../utils/routes/routes.dart';
 
 class Song extends StatefulWidget {
   final SongModel song;
@@ -26,7 +27,12 @@ class _SongState extends State<Song> {
       return Opacity(
         opacity: !widget.isDisable ? 1 : .5,
         child: InkWell(
-          onTap: !widget.isDisable ? () {} : () => _showSongDeletedSnackbar(textTheme),
+          onTap: !widget.isDisable
+              ? () {
+                  context.read<SongProvider>().detailSong = widget.song;
+                  Navigator.pushNamed(context, Routes.nowPlaying);
+                }
+              : () => _showSongDeletedSnackbar(textTheme),
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Ink(
             decoration: ShapeDecoration(
@@ -145,7 +151,12 @@ class _SongState extends State<Song> {
             ],
           ),
         ),
-        onTap: !widget.isDisable ? () {} : () => _showSongDeletedSnackbar(textTheme),
+        onTap: !widget.isDisable
+            ? () {
+                context.read<SongProvider>().detailSong = widget.song;
+                Navigator.pushNamed(context, Routes.nowPlaying);
+              }
+            : () => _showSongDeletedSnackbar(textTheme),
       ),
     );
   }
