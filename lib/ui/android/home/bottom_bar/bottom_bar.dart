@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../constants/colors.dart';
-import '../../now_playing/now_playing.dart';
+import '../../detail/detail.dart';
 import 'song_card.dart';
 
 class BottomBar extends StatefulWidget {
@@ -99,7 +99,7 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
                   children: [
                     FadeTransition(
                       opacity: _animationFadeDetail,
-                      child: NowPlaying(
+                      child: Detail(
                         onBackPressed: () {
                           _animationHeight =
                               Tween<double>(begin: _defaultHeight, end: MediaQuery.of(context).size.height)

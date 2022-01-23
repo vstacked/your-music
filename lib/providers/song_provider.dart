@@ -9,7 +9,10 @@ import '../models/song_model.dart';
 
 class SongProvider extends ChangeNotifier {
   SongProvider() {
-    if (!kIsWeb) _getFavorite();
+    if (!kIsWeb) {
+      _getFavorite();
+      _firestoreService.initMessaging();
+    }
   }
 
   final _firestoreService = FirebaseService.instance;
@@ -23,6 +26,13 @@ class SongProvider extends ChangeNotifier {
   SongUpload? get openedSong => _openedSong;
   void setOpenedSong(SongModel? value) {
     _openedSong = value != null ? SongUpload.fromJson(value.toJson()) : null;
+    notifyListeners();
+  }
+
+  SongModel? _detailSong;
+  SongModel? get detailSong => _detailSong;
+  set detailSong(SongModel? song) {
+    _detailSong = song;
     notifyListeners();
   }
 
@@ -68,6 +78,7 @@ class SongProvider extends ChangeNotifier {
       _firestoreService.sendMessage(
         type: !isEdit ? MessageType.added : MessageType.edited,
         title: '${song.singer} - ${song.title}',
+        songId: song.id,
       );
     } else {
       queue.firstWhere((element) => element == song).isError = true;

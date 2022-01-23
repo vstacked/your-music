@@ -1,8 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../constants/colors.dart';
+import '../../../../models/song_model.dart';
+import '../../../../providers/song_provider.dart';
 import '../../../../utils/device/device_layout.dart';
 import '../shapes/slider_thumb_shape.dart';
 
@@ -31,6 +34,7 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     final TextTheme textTheme = Theme.of(context).textTheme;
+    final songProvider = context.watch<SongProvider>();
     double percent = shrinkOffset / (maxExtent - minExtent);
     percent = percent > 1 ? 1 : percent;
 
@@ -46,23 +50,37 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
     return Column(
       children: [
         if (isTablet(context))
-          Expanded(child: Row(children: childrenTablet(textTheme, circleRadius, isCollapsed)))
+          Expanded(child: Row(children: childrenTablet(songProvider.detailSong!, textTheme, circleRadius, isCollapsed)))
         else
           Expanded(
             child: isCollapsed
-                ? Row(children: children(textTheme, circleRadius, isCollapsed))
-                : Column(children: children(textTheme, circleRadius, isCollapsed)),
+                ? Row(
+                    children: children(
+                      songProvider.playedSong ?? songProvider.detailSong!,
+                      textTheme,
+                      circleRadius,
+                      isCollapsed,
+                    ),
+                  )
+                : Column(
+                    children: children(
+                      songProvider.playedSong ?? songProvider.detailSong!,
+                      textTheme,
+                      circleRadius,
+                      isCollapsed,
+                    ),
+                  ),
           ),
         Divider(thickness: 2, indent: dividerIndent, endIndent: dividerIndent),
       ],
     );
   }
 
-  List<Widget> childrenTablet(TextTheme textTheme, double circleRadius, bool isCollapsed) => <Widget>[
+  List<Widget> childrenTablet(SongModel song, TextTheme textTheme, double circleRadius, bool isCollapsed) => <Widget>[
         const Spacer(),
         CircleAvatar(
           radius: circleRadius,
-          backgroundImage: const NetworkImage('http://placeimg.com/640/480/cats'),
+          backgroundImage: NetworkImage(song.thumbnailUrl),
         ),
         SizedBox(width: isCollapsed ? 20 : 40),
         Expanded(
@@ -72,12 +90,12 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Title',
+                song.title,
                 style: textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
               ),
               const SizedBox(height: 8),
               Text(
-                'Singer',
+                song.singer,
                 style: textTheme.subtitle2!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
               ),
               if (!isCollapsed) _tabletActions(textTheme, isCollapsed),
@@ -152,23 +170,23 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
         ],
       );
 
-  List<Widget> children(TextTheme textTheme, double circleRadius, bool isRow) => <Widget>[
+  List<Widget> children(SongModel song, TextTheme textTheme, double circleRadius, bool isRow) => <Widget>[
         const Spacer(),
         CircleAvatar(
           radius: circleRadius,
-          backgroundImage: const NetworkImage('http://placeimg.com/640/480/cats'),
+          backgroundImage: NetworkImage(song.thumbnailUrl),
         ),
         const Spacer(),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Title',
+              song.title,
               style: textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
             ),
             const SizedBox(height: 8),
             Text(
-              'Singer',
+              song.singer,
               style: textTheme.subtitle2!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
             )
           ],

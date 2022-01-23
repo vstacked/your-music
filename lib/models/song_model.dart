@@ -92,6 +92,7 @@ class SongUpload extends _BaseModel<SongUpload> {
   bool isError;
 
   factory SongUpload.fromJson(Map<String, dynamic> json) => SongUpload(
+        id: json['id'] ?? '',
         fileDetail: json['file_detail'] == null ? null : FileDetail.fromJson(json['file_detail']),
         title: json['title'],
         singer: json['singer'],
@@ -105,6 +106,7 @@ class SongUpload extends _BaseModel<SongUpload> {
 
   @override
   Map<String, dynamic> toJson() => {
+        'id': id,
         'file_detail': fileDetail == null ? null : fileDetail!.toJson(),
         'title': title,
         'singer': singer,
