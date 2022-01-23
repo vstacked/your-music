@@ -30,7 +30,7 @@ class _SongState extends State<Song> {
           onTap: !widget.isDisable
               ? () {
                   context.read<SongProvider>().detailSong = widget.song;
-                  Navigator.pushNamed(context, Routes.nowPlaying);
+                  Navigator.pushNamed(context, Routes.detail);
                 }
               : () => _showSongDeletedSnackbar(textTheme),
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -154,7 +154,7 @@ class _SongState extends State<Song> {
         onTap: !widget.isDisable
             ? () {
                 context.read<SongProvider>().detailSong = widget.song;
-                Navigator.pushNamed(context, Routes.nowPlaying);
+                Navigator.pushNamed(context, Routes.detail);
               }
             : () => _showSongDeletedSnackbar(textTheme),
       ),

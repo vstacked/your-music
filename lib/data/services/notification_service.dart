@@ -49,7 +49,7 @@ class NotificationService {
               songProvider.detailSong =
                   SongModel.fromJson(Map.from(songResult.first.data() as LinkedHashMap)..remove('created_at'))
                     ..id = songResult.first.id;
-              navigatorKey.currentState!.pushNamed(Routes.nowPlaying);
+              navigatorKey.currentState!.pushNamed(Routes.detail);
             }
           }
         });

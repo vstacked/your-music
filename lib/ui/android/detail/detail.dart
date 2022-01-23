@@ -7,15 +7,15 @@ import '../../../utils/device/device_layout.dart';
 import 'slivers/sliver_song_delegate.dart';
 import 'slivers/sliver_tab_bar_delegate.dart';
 
-class NowPlaying extends StatefulWidget {
+class Detail extends StatefulWidget {
   final VoidCallback? onBackPressed;
-  const NowPlaying({Key? key, this.onBackPressed}) : super(key: key);
+  const Detail({Key? key, this.onBackPressed}) : super(key: key);
 
   @override
-  _NowPlayingState createState() => _NowPlayingState();
+  _DetailState createState() => _DetailState();
 }
 
-class _NowPlayingState extends State<NowPlaying> {
+class _DetailState extends State<Detail> {
   double value = 0;
   @override
   Widget build(BuildContext context) {
@@ -34,8 +34,7 @@ class _NowPlayingState extends State<NowPlaying> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           title: Text(
-            // TODO rename to DETAIL
-            'NOW PLAYING',
+            'DETAIL',
             style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor, fontWeight: FontWeight.w600),
           ),
           centerTitle: true,
