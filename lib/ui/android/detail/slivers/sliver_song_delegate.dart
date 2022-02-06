@@ -7,18 +7,22 @@ import '../../../../constants/colors.dart';
 import '../../../../models/song_model.dart';
 import '../../../../providers/song_provider.dart';
 import '../../../../utils/device/device_layout.dart';
-import '../shapes/slider_thumb_shape.dart';
+import '../widgets/seek_bar.dart';
 
 class SliverSongDelegate extends SliverPersistentHeaderDelegate {
   final double sliderValue;
   final ValueChanged<double> sliderOnChanged;
-  final VoidCallback onPrevious;
-  final VoidCallback onNext;
+  final Animation<double> playPauseAnimation;
+  final VoidCallback? onPrevious;
+  final VoidCallback onPlayPause;
+  final VoidCallback? onNext;
   final double maxHeight;
   const SliverSongDelegate({
     required this.sliderValue,
     required this.sliderOnChanged,
+    required this.playPauseAnimation,
     required this.onPrevious,
+    required this.onPlayPause,
     required this.onNext,
     required this.maxHeight,
   });
@@ -50,13 +54,16 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
     return Column(
       children: [
         if (isTablet(context))
-          Expanded(child: Row(children: childrenTablet(songProvider.detailSong!, textTheme, circleRadius, isCollapsed)))
+          Expanded(
+              child: Row(
+                  children: childrenTablet(
+                      songProvider.detailSong ?? songProvider.playedSong, textTheme, circleRadius, isCollapsed)))
         else
           Expanded(
             child: isCollapsed
                 ? Row(
                     children: children(
-                      songProvider.playedSong ?? songProvider.detailSong!,
+                      songProvider.detailSong ?? songProvider.playedSong,
                       textTheme,
                       circleRadius,
                       isCollapsed,
@@ -64,7 +71,7 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
                   )
                 : Column(
                     children: children(
-                      songProvider.playedSong ?? songProvider.detailSong!,
+                      songProvider.detailSong ?? songProvider.playedSong,
                       textTheme,
                       circleRadius,
                       isCollapsed,
@@ -76,11 +83,11 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
     );
   }
 
-  List<Widget> childrenTablet(SongModel song, TextTheme textTheme, double circleRadius, bool isCollapsed) => <Widget>[
+  List<Widget> childrenTablet(SongModel? song, TextTheme textTheme, double circleRadius, bool isCollapsed) => <Widget>[
         const Spacer(),
         CircleAvatar(
           radius: circleRadius,
-          backgroundImage: NetworkImage(song.thumbnailUrl),
+          backgroundImage: song != null ? NetworkImage(song.thumbnailUrl) : null,
         ),
         SizedBox(width: isCollapsed ? 20 : 40),
         Expanded(
@@ -90,12 +97,12 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                song.title,
+                song?.title ?? '-',
                 style: textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
               ),
               const SizedBox(height: 8),
               Text(
-                song.singer,
+                song?.singer ?? '-',
                 style: textTheme.subtitle2!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
               ),
               if (!isCollapsed) _tabletActions(textTheme, isCollapsed),
@@ -109,57 +116,26 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
   Column _tabletActions(TextTheme textTheme, bool isCollapsed) => Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          SizedBox(
-            height: 30,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  '00:00',
-                  style: textTheme.subtitle2!.copyWith(color: greyColor),
-                ),
-                Expanded(
-                  child: SliderTheme(
-                    data: const SliderThemeData(
-                      activeTrackColor: blueColor,
-                      inactiveTrackColor: greyColor,
-                      trackHeight: 3,
-                      thumbShape: SliderThumbShape(),
-                    ),
-                    child: Slider(
-                      onChanged: sliderOnChanged,
-                      value: sliderValue,
-                      max: 100,
-                      min: 0,
-                    ),
-                  ),
-                ),
-                Text(
-                  '00:00',
-                  style: textTheme.subtitle2!.copyWith(color: greyColor),
-                ),
-              ],
-            ),
-          ),
+          const SizedBox(height: 30, child: SeekBar()),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               IconButton(
-                onPressed: () {},
+                onPressed: onPrevious,
                 icon: const Icon(Icons.skip_previous),
                 iconSize: !isCollapsed ? 40 : 30,
                 color: greyColor,
                 splashRadius: !isCollapsed ? 25 : 20,
               ),
               IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.play_arrow),
+                onPressed: onPlayPause,
+                icon: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: playPauseAnimation),
                 iconSize: !isCollapsed ? 40 : 30,
                 color: greyColor,
                 splashRadius: !isCollapsed ? 25 : 20,
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: onNext,
                 icon: const Icon(Icons.skip_next),
                 iconSize: !isCollapsed ? 40 : 30,
                 color: greyColor,
@@ -170,89 +146,53 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
         ],
       );
 
-  List<Widget> children(SongModel song, TextTheme textTheme, double circleRadius, bool isRow) => <Widget>[
+  List<Widget> children(SongModel? song, TextTheme textTheme, double circleRadius, bool isRow) => <Widget>[
         const Spacer(),
         CircleAvatar(
           radius: circleRadius,
-          backgroundImage: NetworkImage(song.thumbnailUrl),
+          backgroundImage: song != null ? NetworkImage(song.thumbnailUrl) : null,
         ),
         const Spacer(),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              song.title,
+              song?.title ?? '-',
               style: textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
             ),
             const SizedBox(height: 8),
             Text(
-              song.singer,
+              song?.singer ?? '-',
               style: textTheme.subtitle2!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
             )
           ],
         ),
         const Spacer(),
-        if (!isRow)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 13),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  '00:00',
-                  style: textTheme.subtitle2!.copyWith(color: greyColor),
-                ),
-                Expanded(
-                  child: SliderTheme(
-                    data: const SliderThemeData(
-                      activeTrackColor: blueColor,
-                      inactiveTrackColor: greyColor,
-                      trackHeight: 3,
-                      thumbShape: SliderThumbShape(),
-                    ),
-                    child: Slider(
-                      onChanged: sliderOnChanged,
-                      value: sliderValue,
-                      max: 100,
-                      min: 0,
-                    ),
-                  ),
-                ),
-                Text(
-                  '00:00',
-                  style: textTheme.subtitle2!.copyWith(color: greyColor),
-                ),
-              ],
-            ),
-          ),
+        if (!isRow) const Padding(padding: EdgeInsets.symmetric(horizontal: 13), child: SeekBar()),
         const Spacer(),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isRow)
-              Text(
-                '00:00 / 00:00',
-                style: textTheme.subtitle2!.copyWith(color: greyColor),
-              ),
+            if (isRow) const SeekBar(hideSlider: true),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 IconButton(
-                  onPressed: () {},
+                  onPressed: onPrevious,
                   icon: const Icon(Icons.skip_previous),
                   iconSize: !isRow ? 40 : 30,
                   color: greyColor,
                   splashRadius: !isRow ? 25 : 20,
                 ),
                 IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.play_arrow),
+                  onPressed: onPlayPause,
+                  icon: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: playPauseAnimation),
                   iconSize: !isRow ? 40 : 30,
                   color: greyColor,
                   splashRadius: !isRow ? 25 : 20,
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: onNext,
                   icon: const Icon(Icons.skip_next),
                   iconSize: !isRow ? 40 : 30,
                   color: greyColor,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 
 import '../../../constants/colors.dart';
@@ -15,11 +16,67 @@ class Detail extends StatefulWidget {
   _DetailState createState() => _DetailState();
 }
 
-class _DetailState extends State<Detail> {
+class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
   double value = 0;
+  late final AnimationController _animationController;
+  bool isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void playAudio() async {
+    final provider = context.read<SongProvider>();
+    try {
+      if (provider.playedSong?.id != provider.detailSong?.id && provider.detailSong != null) {
+        provider.playedSong = provider.detailSong;
+        provider.audioPlayer.seek(Duration.zero, index: provider.sourceAudioIndex(provider.playedSong!.id));
+      }
+      if (_animationController.isCompleted && provider.audioPlayer.playing) {
+        await provider.audioPlayer.pause();
+      } else {
+        if (provider.audioPlayer.processingState == ProcessingState.ready && !provider.audioPlayer.playing) {
+          await provider.audioPlayer.play();
+        }
+
+        provider.audioPlayer.processingStateStream.listen((event) {
+          if (event == ProcessingState.completed && provider.audioPlayer.playing) {
+            provider.audioPlayer.pause();
+            provider.audioPlayer.seek(Duration.zero);
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('playAudio() | $e');
+    }
+  }
+
+  void _getSong() {
+    final provider = context.read<SongProvider>();
+
+    provider.audioPlayer.playingStream.listen((isPlayed) {
+      if ((isPlayed && provider.detailSong == null) ||
+          (provider.playedSong?.id == provider.detailSong?.id && isPlayed)) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final songProvider = context.watch<SongProvider>();
+    _getSong();
+    isFavorite = songProvider.favorite.where((element) => element.id == songProvider.detailSong?.id).isNotEmpty;
     return WillPopScope(
       onWillPop: () {
         if (widget.onBackPressed != null) {
@@ -55,8 +112,13 @@ class _DetailState extends State<Detail> {
           ),
           actions: [
             IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.favorite),
+              onPressed: () {
+                setState(() {
+                  isFavorite = !isFavorite;
+                });
+                context.read<SongProvider>().setFavorite(song: songProvider.detailSong!, isFavorite: isFavorite);
+              },
+              icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_outline),
               iconSize: 30,
               color: greyColor,
               splashRadius: 25,
@@ -76,8 +138,10 @@ class _DetailState extends State<Detail> {
                       this.value = value;
                     });
                   },
-                  onPrevious: () {},
-                  onNext: () {},
+                  playPauseAnimation: _animationController,
+                  onPrevious: songProvider.audioPlayer.hasPrevious ? songProvider.audioPlayer.seekToPrevious : null,
+                  onPlayPause: playAudio,
+                  onNext: songProvider.audioPlayer.hasNext ? songProvider.audioPlayer.seekToNext : null,
                 ),
               ),
               const SliverPersistentHeader(pinned: true, delegate: SliverTabBarDelegate()),
@@ -86,8 +150,8 @@ class _DetailState extends State<Detail> {
                 sliver: SliverFillRemaining(
                   child: TabBarView(
                     children: [
-                      Text(songProvider.playedSong?.description ?? songProvider.detailSong!.description),
-                      Text(songProvider.playedSong?.lyric ?? songProvider.detailSong!.lyric),
+                      Text(songProvider.detailSong?.description ?? songProvider.playedSong?.description ?? ''),
+                      Text(songProvider.detailSong?.lyric ?? songProvider.playedSong?.lyric ?? ''),
                     ],
                   ),
                 ),

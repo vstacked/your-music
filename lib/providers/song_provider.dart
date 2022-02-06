@@ -1,7 +1,11 @@
+import 'dart:collection';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
 import '../data/services/firebase_service.dart';
 import '../models/favorite_model.dart';
@@ -36,8 +40,18 @@ class SongProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  AudioPlayer get audioPlayer => _audioPlayer;
+
   SongModel? _playedSong;
   SongModel? get playedSong => _playedSong;
+  set playedSong(SongModel? song) {
+    _playedSong = song;
+    notifyListeners();
+  }
+
+  List<SongModel> _playlistSource = [];
+  int sourceAudioIndex(String id) => _playlistSource.indexWhere((element) => element.id == id);
 
   bool get isOpen => _openedSong != null;
 
@@ -142,4 +156,46 @@ class SongProvider extends ChangeNotifier {
   }
 
   Stream<QuerySnapshot> fetchSongs() => _firestoreService.fetchSongs();
+
+  void loadPlayer() async {
+    try {
+      final snapshot = await _firestoreService.fetchSongsFuture();
+      _playlistSource = snapshot.docs
+          .map((e) => SongModel.fromJson(Map.from(e.data() as LinkedHashMap)..remove('created_at'))..id = e.id)
+          .toList();
+
+      await audioPlayer.setAudioSource(
+        ConcatenatingAudioSource(
+          children: _playlistSource
+              .map(
+                (e) => AudioSource.uri(
+                  Uri.parse(e.fileDetail!.url),
+                  tag: MediaItem(id: e.id, title: e.title, artist: e.singer, artUri: Uri.parse(e.thumbnailUrl)),
+                ),
+              )
+              .toList(),
+        ),
+      );
+
+      await audioPlayer.load();
+      audioPlayer.sequenceStateStream.listen((event) {
+        if (event != null) {
+          if (audioPlayer.playing) playedSong = _playlistSource[event.currentIndex];
+          detailSong = _playlistSource[event.currentIndex];
+        }
+      });
+      audioPlayer.playingStream.listen((isPlaying) {
+        if (isPlaying && detailSong != null) playedSong = detailSong;
+      });
+      notifyListeners();
+    } catch (e) {
+      debugPrint('_setAudio()| $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
+  }
 }

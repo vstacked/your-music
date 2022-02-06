@@ -1,7 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import '../../../../constants/colors.dart';
+import '../../../../models/position_data.dart';
+import '../../../../providers/song_provider.dart';
 
 class SongCard extends StatefulWidget {
   const SongCard({Key? key, this.onPanUpdate}) : super(key: key);
@@ -17,6 +23,13 @@ class _SongCardState extends State<SongCard> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     _playerController = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
+    context.read<SongProvider>().audioPlayer.playingStream.listen((isPlaying) {
+      if (isPlaying) {
+        _playerController.forward();
+      } else {
+        _playerController.reverse();
+      }
+    });
   }
 
   @override
@@ -28,6 +41,7 @@ class _SongCardState extends State<SongCard> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
+    final provider = context.watch<SongProvider>();
     return Row(
       children: <Widget>[
         Flexible(
@@ -37,35 +51,51 @@ class _SongCardState extends State<SongCard> with SingleTickerProviderStateMixin
               leading: Stack(
                 alignment: Alignment.center,
                 children: [
-                  SleekCircularSlider(
-                    appearance: CircularSliderAppearance(
-                      customWidths: CustomSliderWidths(trackWidth: 3, progressBarWidth: 3),
-                      customColors: CustomSliderColors(
-                        trackColor: Colors.transparent,
-                        progressBarColor: blueColor,
-                        hideShadow: true,
-                      ),
-                      size: 100,
-                      angleRange: 360,
-                      startAngle: 270,
-                      infoProperties: InfoProperties(modifier: (_) => ''),
-                      animationEnabled: false,
+                  StreamBuilder<PositionData>(
+                    stream: Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+                      provider.audioPlayer.positionStream,
+                      provider.audioPlayer.bufferedPositionStream,
+                      provider.audioPlayer.durationStream,
+                      (position, bufferedPosition, duration) =>
+                          PositionData(position, bufferedPosition, duration ?? Duration.zero),
                     ),
-                    initialValue: 75,
+                    builder: (context, snapshot) {
+                      final positionData = snapshot.data;
+                      return SleekCircularSlider(
+                        appearance: CircularSliderAppearance(
+                          customWidths: CustomSliderWidths(trackWidth: 3, progressBarWidth: 3),
+                          customColors: CustomSliderColors(
+                            trackColor: Colors.transparent,
+                            progressBarColor: blueColor,
+                            hideShadow: true,
+                          ),
+                          size: 100,
+                          angleRange: 360,
+                          startAngle: 270,
+                          infoProperties: InfoProperties(modifier: (_) => ''),
+                          animationEnabled: false,
+                        ),
+                        initialValue: min(
+                          (positionData?.position ?? Duration.zero).inMilliseconds.toDouble(),
+                          (positionData?.duration ?? Duration.zero).inMilliseconds.toDouble(),
+                        ),
+                        max: (positionData?.duration ?? Duration.zero).inMilliseconds.toDouble(),
+                      );
+                    },
                   ),
-                  const Opacity(
+                  Opacity(
                     opacity: .25,
                     child: CircleAvatar(
                       maxRadius: 24,
-                      foregroundImage: NetworkImage('http://placeimg.com/640/480/transport'),
+                      foregroundImage: NetworkImage(provider.playedSong!.thumbnailUrl),
                     ),
                   ),
                   GestureDetector(
                     onTap: () {
-                      if (_playerController.isCompleted) {
-                        _playerController.reverse();
+                      if (provider.audioPlayer.playing) {
+                        provider.audioPlayer.pause();
                       } else {
-                        _playerController.forward();
+                        provider.audioPlayer.play();
                       }
                     },
                     child: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: _playerController, size: 40),
@@ -77,13 +107,13 @@ class _SongCardState extends State<SongCard> with SingleTickerProviderStateMixin
               contentPadding: EdgeInsets.zero,
               minVerticalPadding: 0,
               title: Text(
-                'title',
+                provider.playedSong!.title,
                 style: textTheme.subtitle1!.copyWith(color: greyColor),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(
-                '03:40',
+                provider.playedSong!.fileDetail?.duration ?? '-',
                 style: textTheme.caption!.copyWith(color: greyColor.withOpacity(.7)),
               ),
             ),

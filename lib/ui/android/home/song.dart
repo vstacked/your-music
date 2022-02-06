@@ -28,9 +28,12 @@ class _SongState extends State<Song> {
         opacity: !widget.isDisable ? 1 : .5,
         child: InkWell(
           onTap: !widget.isDisable
-              ? () {
-                  context.read<SongProvider>().detailSong = widget.song;
-                  Navigator.pushNamed(context, Routes.detail);
+              ? () async {
+                  final provider = context.read<SongProvider>();
+                  provider.detailSong = widget.song;
+                  await Navigator.pushNamed(context, Routes.detail);
+                  provider.detailSong = null;
+                  if (!provider.audioPlayer.playing) provider.playedSong = null;
                 }
               : () => _showSongDeletedSnackbar(textTheme),
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -152,9 +155,12 @@ class _SongState extends State<Song> {
           ),
         ),
         onTap: !widget.isDisable
-            ? () {
-                context.read<SongProvider>().detailSong = widget.song;
-                Navigator.pushNamed(context, Routes.detail);
+            ? () async {
+                final provider = context.read<SongProvider>();
+                provider.detailSong = widget.song;
+                await Navigator.pushNamed(context, Routes.detail);
+                provider.detailSong = null;
+                if (!provider.audioPlayer.playing) provider.playedSong = null;
               }
             : () => _showSongDeletedSnackbar(textTheme),
       ),

@@ -12,10 +12,21 @@ import '../../../utils/routes/routes.dart';
 import 'song.dart';
 import 'bottom_bar/bottom_bar.dart';
 
-// TODO play audio, voice assistant
+// TODO voice assistant
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
+
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<SongProvider>().loadPlayer();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +125,7 @@ class Home extends StatelessWidget {
             ],
           ),
         ),
-        if (context.read<SongProvider>().playedSong != null) BottomBar(padding: isTablet(context) ? 48 : 16),
+        if (context.watch<SongProvider>().playedSong != null) BottomBar(padding: isTablet(context) ? 48 : 16),
       ],
     );
   }
