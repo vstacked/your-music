@@ -146,6 +146,9 @@ class FirebaseService {
   Stream<QuerySnapshot> fetchSongs() =>
       _firestore.collection('songs').where('active', isEqualTo: true).orderBy('created_at').snapshots();
 
+  Future<QuerySnapshot> fetchSongsFuture() =>
+      _firestore.collection('songs').where('active', isEqualTo: true).orderBy('created_at').get();
+
   Future<void> sendMessage({required MessageType type, required String title, String songId = ''}) async {
     try {
       String msgId, body;
