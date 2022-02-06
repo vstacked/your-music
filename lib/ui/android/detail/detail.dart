@@ -19,6 +19,7 @@ class Detail extends StatefulWidget {
 class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
   double value = 0;
   late final AnimationController _animationController;
+  bool isFavorite = false;
 
   @override
   void initState() {
@@ -75,6 +76,7 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final songProvider = context.watch<SongProvider>();
     _getSong();
+    isFavorite = songProvider.favorite.where((element) => element.id == songProvider.detailSong?.id).isNotEmpty;
     return WillPopScope(
       onWillPop: () {
         if (widget.onBackPressed != null) {
@@ -110,8 +112,13 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
           ),
           actions: [
             IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.favorite),
+              onPressed: () {
+                setState(() {
+                  isFavorite = !isFavorite;
+                });
+                context.read<SongProvider>().setFavorite(song: songProvider.detailSong!, isFavorite: isFavorite);
+              },
+              icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_outline),
               iconSize: 30,
               color: greyColor,
               splashRadius: 25,
