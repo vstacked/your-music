@@ -105,6 +105,10 @@ class _SeekBarState extends State<SeekBar> {
                               duration(positionData?.duration).inMilliseconds.toDouble())
                           : 0,
                       onChanged: (value) {
+                        if (isPlaying) {
+                          setState(() => _dragValue = value);
+                          provider.audioPlayer.seek(Duration(milliseconds: value.round()));
+                        }
                         // setState(() {
                         //   _dragValue = value;
                         // });
