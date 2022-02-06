@@ -125,7 +125,7 @@ class _HomeState extends State<Home> {
             ],
           ),
         ),
-        if (context.read<SongProvider>().playedSong != null) BottomBar(padding: isTablet(context) ? 48 : 16),
+        if (context.watch<SongProvider>().playedSong != null) BottomBar(padding: isTablet(context) ? 48 : 16),
       ],
     );
   }
