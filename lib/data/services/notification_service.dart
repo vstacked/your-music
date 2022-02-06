@@ -42,14 +42,16 @@ class NotificationService {
       final data = jsonDecode(payload);
       if (data['msg_id'] != '2') {
         final songProvider = navigatorKey.currentContext!.read<SongProvider>();
-        songProvider.fetchSongs().listen((event) {
+        songProvider.fetchSongs().listen((event) async {
           if (event.docs.isNotEmpty) {
             final songResult = event.docs.where((e) => e.id == data['song_id']).toList();
             if (songResult.isNotEmpty) {
               songProvider.detailSong =
                   SongModel.fromJson(Map.from(songResult.first.data() as LinkedHashMap)..remove('created_at'))
                     ..id = songResult.first.id;
-              navigatorKey.currentState!.pushNamed(Routes.detail);
+              await navigatorKey.currentState!.pushNamed(Routes.detail);
+              songProvider.detailSong = null;
+              if (!songProvider.audioPlayer.playing) songProvider.playedSong = null;
             }
           }
         });
