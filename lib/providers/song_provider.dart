@@ -180,12 +180,12 @@ class SongProvider extends ChangeNotifier {
       await audioPlayer.load();
       audioPlayer.sequenceStateStream.listen((event) {
         if (event != null) {
-          if (audioPlayer.playing) {
-            playedSong = _playlistSource[event.currentIndex];
-          } else {
-            detailSong = _playlistSource[event.currentIndex];
-          }
+          if (audioPlayer.playing) playedSong = _playlistSource[event.currentIndex];
+          detailSong = _playlistSource[event.currentIndex];
         }
+      });
+      audioPlayer.playingStream.listen((isPlaying) {
+        if (isPlaying && detailSong != null) playedSong = detailSong;
       });
       notifyListeners();
     } catch (e) {

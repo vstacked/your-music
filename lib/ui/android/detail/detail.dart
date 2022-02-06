@@ -132,15 +132,9 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
                     });
                   },
                   playPauseAnimation: _animationController,
-                  onPrevious: () async {
-                    await songProvider.audioPlayer.seekToPrevious();
-                    if (songProvider.playedSong != null) songProvider.detailSong = songProvider.playedSong;
-                  },
+                  onPrevious: songProvider.audioPlayer.hasPrevious ? songProvider.audioPlayer.seekToPrevious : null,
                   onPlayPause: playAudio,
-                  onNext: () async {
-                    await songProvider.audioPlayer.seekToNext();
-                    if (songProvider.playedSong != null) songProvider.detailSong = songProvider.playedSong;
-                  },
+                  onNext: songProvider.audioPlayer.hasNext ? songProvider.audioPlayer.seekToNext : null,
                 ),
               ),
               const SliverPersistentHeader(pinned: true, delegate: SliverTabBarDelegate()),

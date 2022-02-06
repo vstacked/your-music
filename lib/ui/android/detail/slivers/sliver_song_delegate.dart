@@ -13,9 +13,9 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
   final double sliderValue;
   final ValueChanged<double> sliderOnChanged;
   final Animation<double> playPauseAnimation;
-  final VoidCallback onPrevious;
+  final VoidCallback? onPrevious;
   final VoidCallback onPlayPause;
-  final VoidCallback onNext;
+  final VoidCallback? onNext;
   final double maxHeight;
   const SliverSongDelegate({
     required this.sliderValue,
@@ -57,13 +57,13 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
           Expanded(
               child: Row(
                   children: childrenTablet(
-                      songProvider.detailSong ?? songProvider.playedSong!, textTheme, circleRadius, isCollapsed)))
+                      songProvider.detailSong ?? songProvider.playedSong, textTheme, circleRadius, isCollapsed)))
         else
           Expanded(
             child: isCollapsed
                 ? Row(
                     children: children(
-                      songProvider.detailSong ?? songProvider.playedSong!,
+                      songProvider.detailSong ?? songProvider.playedSong,
                       textTheme,
                       circleRadius,
                       isCollapsed,
@@ -71,7 +71,7 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
                   )
                 : Column(
                     children: children(
-                      songProvider.detailSong ?? songProvider.playedSong!,
+                      songProvider.detailSong ?? songProvider.playedSong,
                       textTheme,
                       circleRadius,
                       isCollapsed,
@@ -83,11 +83,11 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
     );
   }
 
-  List<Widget> childrenTablet(SongModel song, TextTheme textTheme, double circleRadius, bool isCollapsed) => <Widget>[
+  List<Widget> childrenTablet(SongModel? song, TextTheme textTheme, double circleRadius, bool isCollapsed) => <Widget>[
         const Spacer(),
         CircleAvatar(
           radius: circleRadius,
-          backgroundImage: NetworkImage(song.thumbnailUrl),
+          backgroundImage: song != null ? NetworkImage(song.thumbnailUrl) : null,
         ),
         SizedBox(width: isCollapsed ? 20 : 40),
         Expanded(
@@ -97,12 +97,12 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                song.title,
+                song?.title ?? '-',
                 style: textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
               ),
               const SizedBox(height: 8),
               Text(
-                song.singer,
+                song?.singer ?? '-',
                 style: textTheme.subtitle2!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
               ),
               if (!isCollapsed) _tabletActions(textTheme, isCollapsed),
@@ -146,23 +146,23 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
         ],
       );
 
-  List<Widget> children(SongModel song, TextTheme textTheme, double circleRadius, bool isRow) => <Widget>[
+  List<Widget> children(SongModel? song, TextTheme textTheme, double circleRadius, bool isRow) => <Widget>[
         const Spacer(),
         CircleAvatar(
           radius: circleRadius,
-          backgroundImage: NetworkImage(song.thumbnailUrl),
+          backgroundImage: song != null ? NetworkImage(song.thumbnailUrl) : null,
         ),
         const Spacer(),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              song.title,
+              song?.title ?? '-',
               style: textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
             ),
             const SizedBox(height: 8),
             Text(
-              song.singer,
+              song?.singer ?? '-',
               style: textTheme.subtitle2!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
             )
           ],
