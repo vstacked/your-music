@@ -12,7 +12,7 @@ import '../../../utils/routes/routes.dart';
 import 'song.dart';
 import 'bottom_bar/bottom_bar.dart';
 
-// TODO play audio, voice assistant
+// TODO voice assistant
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
