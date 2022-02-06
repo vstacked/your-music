@@ -14,8 +14,19 @@ import 'bottom_bar/bottom_bar.dart';
 
 // TODO play audio, voice assistant
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
+
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<SongProvider>().loadPlayer();
+  }
 
   @override
   Widget build(BuildContext context) {
