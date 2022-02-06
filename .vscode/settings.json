@@ -16,6 +16,7 @@
         "LTRB",
         "microtask",
         "readmore",
+        "rxdart",
         "scrollbars",
         "toggleable",
         "vsync"
@@ -28,6 +29,7 @@
         "Schyler",
         "appspot",
         "firebaseapp",
-        "googleapis"
+        "googleapis",
+        "ryanheise"
     ]
 }
