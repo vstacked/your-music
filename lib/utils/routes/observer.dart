@@ -5,6 +5,7 @@ import 'dart:developer' as dev;
 
 class Observer {
   const Observer._();
+
   static final _RouteObserver route = _RouteObserver();
 }
 
@@ -38,6 +39,7 @@ class _RouteObserver extends RouteObserver {
   }
 
   final NavStack<String> _navStack = NavStack<String>();
+
   NavStack<String> get navStack => _navStack;
 
   void _logStack() {
@@ -90,10 +92,16 @@ class NavStack<T> implements _NavStack<T> {
 
 abstract class _NavStack<T> {
   void push(T val) {}
+
   void pop() {}
+
   void remove(T val) {}
+
   void replace(T newRoute, T oldRoute) {}
+
   T top();
+
   List<T> fetchAll();
+
   void get clear {}
 }

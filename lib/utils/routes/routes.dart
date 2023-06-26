@@ -16,7 +16,8 @@ class Routes {
   static const String detail = '/detail';
 
   static final routes = <String, WidgetBuilder>{
-    home: (BuildContext context) => (kIsWeb) ? const web.Home() : const android.Home(),
+    home: (BuildContext context) =>
+        kIsWeb ? const web.Home() : const android.Home(),
     login: (BuildContext context) => const Login(),
     favorite: (BuildContext context) => const Favorite(),
     detail: (BuildContext context) => const Detail(),

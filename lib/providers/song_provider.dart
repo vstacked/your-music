@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -12,14 +11,14 @@ import '../models/favorite_model.dart';
 import '../models/song_model.dart';
 
 class SongProvider extends ChangeNotifier {
-  SongProvider() {
+  final FirebaseService _firebaseService;
+
+  SongProvider(this._firebaseService) {
     if (!kIsWeb) {
       _getFavorite();
-      _firestoreService.initMessaging();
+      _firebaseService.initMessaging();
     }
   }
-
-  final _firestoreService = FirebaseService.instance;
 
   List<SongUpload> queue = [];
   List<FavoriteModel> _favorite = [];
@@ -27,49 +26,64 @@ class SongProvider extends ChangeNotifier {
   List<FavoriteModel> get favorite => _favorite;
 
   SongUpload? _openedSong;
+
   SongUpload? get openedSong => _openedSong;
+
   void setOpenedSong(SongModel? value) {
     _openedSong = value != null ? SongUpload.fromJson(value.toJson()) : null;
     notifyListeners();
   }
 
   SongModel? _detailSong;
+
   SongModel? get detailSong => _detailSong;
+
   set detailSong(SongModel? song) {
     _detailSong = song;
     notifyListeners();
   }
 
   final AudioPlayer _audioPlayer = AudioPlayer();
+
   AudioPlayer get audioPlayer => _audioPlayer;
 
   SongModel? _playedSong;
+
   SongModel? get playedSong => _playedSong;
+
   set playedSong(SongModel? song) {
     _playedSong = song;
     notifyListeners();
   }
 
   List<SongModel> _playlistSource = [];
-  int sourceAudioIndex(String id) => _playlistSource.indexWhere((element) => element.id == id);
+
+  int sourceAudioIndex(String id) =>
+      _playlistSource.indexWhere((element) => element.id == id);
 
   bool get isOpen => _openedSong != null;
 
   bool _isRemove = false;
+
   bool get isRemove => _isRemove;
+
   void setRemove(bool value) {
     _isRemove = value;
     notifyListeners();
   }
 
   bool _isRemoveLoading = false;
+
   bool get isRemoveLoading => _isRemoveLoading;
 
   bool _isRemoveFailed = false;
+
   bool get isRemoveFailed => _isRemoveFailed;
 
   final List<String> _removeIds = [];
+
   bool containsRemoveId(String id) => _removeIds.contains(id);
+
   void setRemoveIds(String id) {
     if (_removeIds.contains(id)) {
       _removeIds.remove(id);
@@ -86,10 +100,11 @@ class SongProvider extends ChangeNotifier {
     if (queue.where((element) => element == song).isEmpty) queue.add(song);
     notifyListeners();
 
-    final isSuccess = await _firestoreService.saveOrUpdateSong(song, isEdit: isEdit);
+    final isSuccess =
+        await _firebaseService.saveOrUpdateSong(song, isEdit: isEdit);
     if (isSuccess) {
       queue.remove(song);
-      _firestoreService.sendMessage(
+      _firebaseService.sendMessage(
         type: !isEdit ? MessageType.added : MessageType.edited,
         title: '${song.singer} - ${song.title}',
         songId: song.id,
@@ -108,7 +123,7 @@ class SongProvider extends ChangeNotifier {
     notifyListeners();
 
     for (var item in _removeIds) {
-      bool isDeleted = await _firestoreService.deleteSong(item);
+      bool isDeleted = await _firebaseService.deleteSong(item);
       if (!isDeleted) {
         _isRemoveFailed = true;
         break;
@@ -116,7 +131,8 @@ class SongProvider extends ChangeNotifier {
     }
 
     if (!_isRemoveFailed) {
-      _firestoreService.sendMessage(type: MessageType.deleted, title: _removeIds.length.toString());
+      _firebaseService.sendMessage(
+          type: MessageType.deleted, title: _removeIds.length.toString());
       clearRemoveIds();
     }
     _isRemoveLoading = false;
@@ -155,13 +171,15 @@ class SongProvider extends ChangeNotifier {
     _getFavorite();
   }
 
-  Stream<QuerySnapshot> fetchSongs() => _firestoreService.fetchSongs();
+  Stream<QuerySnapshot> fetchSongs() => _firebaseService.fetchSongs();
 
   void loadPlayer() async {
     try {
-      final snapshot = await _firestoreService.fetchSongsFuture();
+      final snapshot = await _firebaseService.fetchSongsFuture();
       _playlistSource = snapshot.docs
-          .map((e) => SongModel.fromJson(Map.from(e.data() as LinkedHashMap)..remove('created_at'))..id = e.id)
+          .map((e) => SongModel.fromJson(
+              Map.from(e.data() as LinkedHashMap)..remove('created_at'))
+            ..id = e.id)
           .toList();
 
       await audioPlayer.setAudioSource(
@@ -170,7 +188,11 @@ class SongProvider extends ChangeNotifier {
               .map(
                 (e) => AudioSource.uri(
                   Uri.parse(e.fileDetail!.url),
-                  tag: MediaItem(id: e.id, title: e.title, artist: e.singer, artUri: Uri.parse(e.thumbnailUrl)),
+                  tag: MediaItem(
+                      id: e.id,
+                      title: e.title,
+                      artist: e.singer,
+                      artUri: Uri.parse(e.thumbnailUrl)),
                 ),
               )
               .toList(),
@@ -180,7 +202,9 @@ class SongProvider extends ChangeNotifier {
       await audioPlayer.load();
       audioPlayer.sequenceStateStream.listen((event) {
         if (event != null) {
-          if (audioPlayer.playing) playedSong = _playlistSource[event.currentIndex];
+          if (audioPlayer.playing) {
+            playedSong = _playlistSource[event.currentIndex];
+          }
           detailSong = _playlistSource[event.currentIndex];
         }
       });

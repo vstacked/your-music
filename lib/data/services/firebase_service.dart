@@ -17,10 +17,9 @@ import 'notification_service.dart';
 enum MessageType { added, edited, deleted }
 
 class FirebaseService {
-  FirebaseService._() {
+  FirebaseService() {
     _auth.signInAnonymously();
   }
-  static final instance = FirebaseService._();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -49,7 +48,9 @@ class FirebaseService {
       final data = await _adminAuth();
       if (data.isEmpty) throw Exception('Error Auth');
 
-      if (username == data['username'] && password == data['password']) return true;
+      if (username == data['username'] && password == data['password']) {
+        return true;
+      }
 
       return false;
     } catch (e) {
@@ -58,23 +59,31 @@ class FirebaseService {
     }
   }
 
-  Future<bool> saveOrUpdateSong(SongUpload songModel, {bool isEdit = false}) async {
+  Future<bool> saveOrUpdateSong(
+    SongUpload songModel, {
+    bool isEdit = false,
+  }) async {
     try {
       final _collection = _firestore.collection('songs');
 
-      final _template = '${_auth.currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
+      final _template =
+          '${_auth.currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
 
       final AudioPlayer audioPlayer = AudioPlayer();
 
       if (!isEdit) {
         final song = await _storage
-            .ref('songs/$_template.${songModel.songPlatformFile!.name.split('.').last}')
+            .ref(
+              'songs/$_template.${songModel.songPlatformFile!.name.split('.').last}',
+            )
             .putData(songModel.songPlatformFile!.bytes!);
 
         await audioPlayer.setUrl(await song.ref.getDownloadURL());
 
         final thumbnail = await _storage
-            .ref('thumbnails/$_template.${songModel.thumbnailPlatformFile!.name.split('.').last}')
+            .ref(
+              'thumbnails/$_template.${songModel.thumbnailPlatformFile!.name.split('.').last}',
+            )
             .putData(songModel.thumbnailPlatformFile!.bytes!);
 
         await _collection.add({
@@ -83,7 +92,8 @@ class FirebaseService {
           'file_detail': {
             'name': songModel.songPlatformFile!.name,
             'url': await song.ref.getDownloadURL(),
-            'duration': audioPlayer.duration.toString().split('.').first.substring(2),
+            'duration':
+                audioPlayer.duration.toString().split('.').first.substring(2),
           },
           'thumbnail_url': await thumbnail.ref.getDownloadURL(),
           'lyric': songModel.lyric,
@@ -101,7 +111,9 @@ class FirebaseService {
 
         if (songModel.songPlatformFile != null) {
           final song = await _storage
-              .ref('songs/$_template.${songModel.songPlatformFile!.name.split('.').last}')
+              .ref(
+                'songs/$_template.${songModel.songPlatformFile!.name.split('.').last}',
+              )
               .putData(songModel.songPlatformFile!.bytes!);
 
           await audioPlayer.setUrl(await song.ref.getDownloadURL());
@@ -110,14 +122,17 @@ class FirebaseService {
             'file_detail': {
               'name': songModel.songPlatformFile!.name,
               'url': await song.ref.getDownloadURL(),
-              'duration': audioPlayer.duration.toString().split('.').first.substring(2),
+              'duration':
+                  audioPlayer.duration.toString().split('.').first.substring(2),
             }
           });
         }
 
         if (songModel.thumbnailPlatformFile != null) {
           final thumbnail = await _storage
-              .ref('thumbnails/$_template.${songModel.thumbnailPlatformFile!.name.split('.').last}')
+              .ref(
+                'thumbnails/$_template.${songModel.thumbnailPlatformFile!.name.split('.').last}',
+              )
               .putData(songModel.thumbnailPlatformFile!.bytes!);
 
           await _collection.doc(songModel.id).update({
@@ -143,13 +158,23 @@ class FirebaseService {
     }
   }
 
-  Stream<QuerySnapshot> fetchSongs() =>
-      _firestore.collection('songs').where('active', isEqualTo: true).orderBy('created_at').snapshots();
+  Stream<QuerySnapshot> fetchSongs() => _firestore
+      .collection('songs')
+      .where('active', isEqualTo: true)
+      .orderBy('created_at')
+      .snapshots();
 
-  Future<QuerySnapshot> fetchSongsFuture() =>
-      _firestore.collection('songs').where('active', isEqualTo: true).orderBy('created_at').get();
+  Future<QuerySnapshot> fetchSongsFuture() => _firestore
+      .collection('songs')
+      .where('active', isEqualTo: true)
+      .orderBy('created_at')
+      .get();
 
-  Future<void> sendMessage({required MessageType type, required String title, String songId = ''}) async {
+  Future<void> sendMessage({
+    required MessageType type,
+    required String title,
+    String songId = '',
+  }) async {
     try {
       String msgId, body;
 
