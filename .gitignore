@@ -49,3 +49,6 @@ app.*.map.json
 
 *.env
 env.g.dart
+
+assets/secrets.json
+android/app/build

@@ -17,57 +17,70 @@ class NotificationService {
 
   static final instance = NotificationService._();
 
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  final AndroidNotificationChannel _channel = const AndroidNotificationChannel(
+  final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final _channel = const AndroidNotificationChannel(
     'high_importance_channel',
     'Your Music Notifications',
     importance: Importance.max,
   );
-  final AndroidInitializationSettings _initializationSettingsAndroid =
-      const AndroidInitializationSettings('background');
-  late final NotificationDetails _notificationDetails =
-      NotificationDetails(android: AndroidNotificationDetails(_channel.id, _channel.name));
+  final _initializationSettingsAndroid = const AndroidInitializationSettings('background');
+  late final _notificationDetails = NotificationDetails(
+    android: AndroidNotificationDetails(_channel.id, _channel.name),
+  );
 
   Future<void> _init() async {
-    final InitializationSettings initializationSettings =
-        InitializationSettings(android: _initializationSettingsAndroid);
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings, onSelectNotification: selectNotification);
+    final initializationSettings = InitializationSettings(android: _initializationSettingsAndroid);
+
+    await _flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onSelectNotification: selectNotification,
+    );
+
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(_channel);
   }
 
   void selectNotification(String? payload) async {
-    if (payload != null) {
-      final data = jsonDecode(payload);
-      if (data['msg_id'] != '2') {
-        final songProvider = navigatorKey.currentContext!.read<SongProvider>();
-        songProvider.fetchSongs().listen((event) async {
-          if (event.docs.isNotEmpty) {
-            final songResult = event.docs.where((e) => e.id == data['song_id']).toList();
-            if (songResult.isNotEmpty) {
-              songProvider.detailSong =
-                  SongModel.fromJson(Map.from(songResult.first.data() as LinkedHashMap)..remove('created_at'))
-                    ..id = songResult.first.id;
-              await navigatorKey.currentState!.pushNamed(Routes.detail);
-              songProvider.detailSong = null;
-              if (!songProvider.audioPlayer.playing) songProvider.playedSong = null;
+    if (payload == null) return null;
+
+    final data = jsonDecode(payload);
+
+    if (data['msg_id'] == '0' || data['msg_id'] == '1') {
+      final songProvider = navigatorKey.currentContext!.read<SongProvider>();
+
+      songProvider.fetchSongs().listen((event) async {
+        if (event.docs.isNotEmpty) {
+          final id = data['song_id'];
+          final songResult = event.docs.where((e) => e.id == id).toList();
+
+          if (songResult.isNotEmpty) {
+            songProvider.detailSong = SongModel.fromJson(
+              Map.from(songResult.first.data() as LinkedHashMap)..remove('created_at'),
+            )..id = songResult.first.id;
+
+            await navigatorKey.currentState!.pushNamed(Routes.detail);
+
+            // *
+            songProvider.detailSong = null;
+            if (!songProvider.audioPlayer.playing) {
+              songProvider.playedSong = null;
             }
           }
-        });
-      }
+        }
+      });
     }
   }
 
   Future<void> show({required RemoteMessage message}) async {
-    if (message.notification != null) {
-      _flutterLocalNotificationsPlugin.show(
-        message.notification.hashCode,
-        message.notification!.title,
-        message.notification!.body,
-        _notificationDetails,
-        payload: jsonEncode(message.data),
-      );
-    }
+    if (message.notification == null) return;
+
+    _flutterLocalNotificationsPlugin.show(
+      message.notification.hashCode,
+      message.notification!.title,
+      message.notification!.body,
+      _notificationDetails,
+      payload: jsonEncode(message.data),
+    );
   }
 }

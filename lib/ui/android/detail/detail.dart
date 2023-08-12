@@ -10,6 +10,7 @@ import 'slivers/sliver_tab_bar_delegate.dart';
 
 class Detail extends StatefulWidget {
   final VoidCallback? onBackPressed;
+
   const Detail({Key? key, this.onBackPressed}) : super(key: key);
 
   @override
@@ -54,7 +55,7 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
           }
         });
       }
-    } catch (e) {
+    } catch (e, s) {
       debugPrint('playAudio() | $e');
     }
   }

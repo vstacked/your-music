@@ -1,10 +1,13 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:hive/hive.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:your_music/constants/key.dart';
 
 import '../data/services/firebase_service.dart';
 import '../models/favorite_model.dart';
@@ -58,8 +61,7 @@ class SongProvider extends ChangeNotifier {
 
   List<SongModel> _playlistSource = [];
 
-  int sourceAudioIndex(String id) =>
-      _playlistSource.indexWhere((element) => element.id == id);
+  int sourceAudioIndex(String id) => _playlistSource.indexWhere((element) => element.id == id);
 
   bool get isOpen => _openedSong != null;
 
@@ -100,8 +102,7 @@ class SongProvider extends ChangeNotifier {
     if (queue.where((element) => element == song).isEmpty) queue.add(song);
     notifyListeners();
 
-    final isSuccess =
-        await _firebaseService.saveOrUpdateSong(song, isEdit: isEdit);
+    final isSuccess = isEdit ? await _firebaseService.updateSong(song) : await _firebaseService.saveSong(song);
     if (isSuccess) {
       queue.remove(song);
       _firebaseService.sendMessage(
@@ -131,8 +132,7 @@ class SongProvider extends ChangeNotifier {
     }
 
     if (!_isRemoveFailed) {
-      _firebaseService.sendMessage(
-          type: MessageType.deleted, title: _removeIds.length.toString());
+      _firebaseService.sendMessage(type: MessageType.deleted, title: _removeIds.length.toString());
       clearRemoveIds();
     }
     _isRemoveLoading = false;
@@ -140,7 +140,7 @@ class SongProvider extends ChangeNotifier {
   }
 
   void _getFavorite() {
-    final box = Hive.box<FavoriteModel>('favorites');
+    final box = Hive.box<FavoriteModel>(KeyConstant.boxFavorites);
 
     _favorite = box.values.toList()
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt))
@@ -150,7 +150,7 @@ class SongProvider extends ChangeNotifier {
   }
 
   void setFavorite({required SongModel song, required bool isFavorite}) {
-    final box = Hive.box<FavoriteModel>('favorites');
+    final box = Hive.box<FavoriteModel>(KeyConstant.boxFavorites);
 
     final data = box.values.toList();
     if (isFavorite && data.where((element) => element.id == song.id).isEmpty) {
@@ -175,11 +175,9 @@ class SongProvider extends ChangeNotifier {
 
   void loadPlayer() async {
     try {
-      final snapshot = await _firebaseService.fetchSongsFuture();
+      final snapshot = await _firebaseService.fetchSongsAsync();
       _playlistSource = snapshot.docs
-          .map((e) => SongModel.fromJson(
-              Map.from(e.data() as LinkedHashMap)..remove('created_at'))
-            ..id = e.id)
+          .map((e) => SongModel.fromJson(Map.from(e.data() as LinkedHashMap)..remove('created_at'))..id = e.id)
           .toList();
 
       await audioPlayer.setAudioSource(
@@ -188,11 +186,7 @@ class SongProvider extends ChangeNotifier {
               .map(
                 (e) => AudioSource.uri(
                   Uri.parse(e.fileDetail!.url),
-                  tag: MediaItem(
-                      id: e.id,
-                      title: e.title,
-                      artist: e.singer,
-                      artUri: Uri.parse(e.thumbnailUrl)),
+                  tag: MediaItem(id: e.id, title: e.title, artist: e.singer, artUri: Uri.parse(e.thumbnailUrl)),
                 ),
               )
               .toList(),
@@ -212,14 +206,55 @@ class SongProvider extends ChangeNotifier {
         if (isPlaying && detailSong != null) playedSong = detailSong;
       });
       notifyListeners();
-    } catch (e) {
+    } catch (e, s) {
       debugPrint('_setAudio()| $e');
+    }
+  }
+
+  void voiceAssistantAction(Map<String, dynamic> map) {
+    switch (map['command']) {
+      case 'play_specific':
+        final title = map['title'];
+        final playlist = _playlistSource;
+
+        final data = extractTop(query: title, choices: playlist.map((e) => e.title).toList(), limit: 1);
+        final matchingSong = data.isNotEmpty ? playlist[data.first.index] : null;
+
+        if (matchingSong != null) {
+          playedSong = matchingSong;
+          _audioPlayer.seek(Duration.zero, index: sourceAudioIndex(matchingSong.id));
+          _audioPlayer.play();
+        }
+        break;
+      case 'play':
+        final playlist = _playlistSource;
+
+        final r = Random();
+        final song = playlist[r.nextInt(playlist.length)];
+
+        playedSong = song;
+        _audioPlayer.seek(Duration.zero, index: sourceAudioIndex(song.id));
+        _audioPlayer.play();
+        break;
+      case 'resume':
+        if (_playedSong != null && !_audioPlayer.playing) _audioPlayer.play();
+        break;
+      case 'stop':
+        if (_playedSong != null && _audioPlayer.playing) _audioPlayer.pause();
+        break;
+      case 'next':
+        if (_playedSong != null) _audioPlayer.seekToNext();
+        break;
+      case 'prev':
+        if (_playedSong != null) _audioPlayer.seekToPrevious();
+        break;
+      default:
     }
   }
 
   @override
   void dispose() {
-    audioPlayer.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 }

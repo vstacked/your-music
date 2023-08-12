@@ -55,7 +55,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance!.addObserver(this);
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
     audioPlayer = AudioPlayer();
     audioPlayer.playingStream.listen((event) {
@@ -69,7 +69,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
 
   @override
   void dispose() {
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance!.addObserver(this);
     _animationController.dispose();
     audioPlayer.dispose();
     super.dispose();
@@ -81,13 +81,14 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
   }
 
   Future<void> _setAudio() async {
+    final provider = context.read<SongProvider>();
     try {
-      Uri uri = Uri.parse(context.read<SongProvider>().openedSong!.fileDetail!.url);
+      Uri uri = Uri.parse(provider.openedSong!.fileDetail!.url);
       _animationController.reset();
       await audioPlayer.stop();
       await audioPlayer.setUrl(uri.toString());
       await audioPlayer.load();
-    } catch (e) {
+    } catch (e, s) {
       debugPrint('_setAudio()| $e');
     }
   }
@@ -106,7 +107,7 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
           }
         });
       }
-    } catch (e) {
+    } catch (e, s) {
       debugPrint('playAudio() | $e');
     }
   }

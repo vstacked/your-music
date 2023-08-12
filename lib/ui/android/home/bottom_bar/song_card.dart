@@ -19,6 +19,7 @@ class SongCard extends StatefulWidget {
 
 class _SongCardState extends State<SongCard> with SingleTickerProviderStateMixin {
   late final AnimationController _playerController;
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +61,8 @@ class _SongCardState extends State<SongCard> with SingleTickerProviderStateMixin
                           PositionData(position, bufferedPosition, duration ?? Duration.zero),
                     ),
                     builder: (context, snapshot) {
+                      if (!snapshot.hasData) return const SizedBox.shrink();
+
                       final positionData = snapshot.data;
                       return SleekCircularSlider(
                         appearance: CircularSliderAppearance(
