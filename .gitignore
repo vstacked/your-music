@@ -32,7 +32,6 @@
 /build/
 
 # Web related
-lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols
@@ -52,3 +51,5 @@ env.g.dart
 
 assets/secrets.json
 android/app/build
+
+.firebase
