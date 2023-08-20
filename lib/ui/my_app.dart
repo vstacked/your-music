@@ -74,6 +74,7 @@ class _MyAppState extends State<MyApp> {
         if (snapshot.hasError) {
           return MaterialApp(
             theme: darkTheme,
+            title: 'Your Music',
             home: Scaffold(
               body: Center(
                 child: Text(

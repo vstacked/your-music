@@ -87,6 +87,7 @@ class __MobileAppState extends State<_MobileApp> {
         if (snapshot.connectionState != ConnectionState.done) {
           // Splashscreen
           return MaterialApp(
+            title: 'Your Music',
             home: Scaffold(
               backgroundColor: secondaryColor,
               body: Center(
