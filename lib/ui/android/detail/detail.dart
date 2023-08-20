@@ -22,6 +22,8 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
   bool isFavorite = false;
 
+  final ValueNotifier<int> _tabIndexNotifier = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +33,7 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _animationController.dispose();
+    _tabIndexNotifier.dispose();
     super.dispose();
   }
 
@@ -146,15 +149,19 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
                   onNext: songProvider.audioPlayer.hasNext ? songProvider.audioPlayer.seekToNext : null,
                 ),
               ),
-              const SliverPersistentHeader(pinned: true, delegate: SliverTabBarDelegate()),
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: SliverTabBarDelegate(onChanged: (value) => _tabIndexNotifier.value = value),
+              ),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                sliver: SliverFillRemaining(
-                  child: TabBarView(
-                    children: [
+                sliver: SliverToBoxAdapter(
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: _tabIndexNotifier,
+                    builder: (context, index, _) => [
                       Text(songProvider.detailSong?.description ?? songProvider.playedSong?.description ?? ''),
                       Text(songProvider.detailSong?.lyric ?? songProvider.playedSong?.lyric ?? ''),
-                    ],
+                    ][index],
                   ),
                 ),
               ),

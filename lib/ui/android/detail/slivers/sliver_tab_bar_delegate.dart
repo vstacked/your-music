@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../constants/colors.dart';
 
 class SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
-  const SliverTabBarDelegate();
+  final ValueChanged<int> onChanged;
+
+  const SliverTabBarDelegate({required this.onChanged});
 
   @override
   double get minExtent => 50;
@@ -29,6 +31,7 @@ class SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
               labelStyle: textTheme.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
               labelColor: greyColor,
               tabs: const [Tab(text: 'Description'), Tab(text: 'Lyric')],
+              onTap: onChanged,
             ),
             const Center(child: VerticalDivider(thickness: 2, indent: 15, endIndent: 15)),
           ],
