@@ -5,7 +5,7 @@ import 'package:your_music/utils/color/generate_material_color.dart';
 final darkTheme = ThemeData(
   brightness: Brightness.dark,
   primaryColor: primaryColor,
-  accentColor: secondaryColor,
+  hintColor: secondaryColor,
   scaffoldBackgroundColor: secondaryColor,
   checkboxTheme: CheckboxThemeData(
     side: const BorderSide(color: redColor, width: 2),

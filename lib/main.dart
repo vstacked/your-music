@@ -2,13 +2,16 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:your_music/firebase_options.dart';
 
 import 'config/hive_config.dart';
 import 'constants/colors.dart';
@@ -17,7 +20,7 @@ import 'ui/my_app.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString(KeyConstant.prefNotification, jsonEncode(message.data));
@@ -28,7 +31,7 @@ void main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
-      await Firebase.initializeApp();
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -40,12 +43,25 @@ void main() async {
           androidNotificationChannelName: 'Audio playback',
           androidNotificationOngoing: true,
         );
+
+        FlutterError.onError = (errorDetails) {
+          FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+        };
+        // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+        PlatformDispatcher.instance.onError = (error, stack) {
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+          return true;
+        };
+
+        await dotenv.load(fileName: '.env');
       }
 
       setPathUrlStrategy();
       runApp(!kIsWeb ? const _MobileApp() : const MyApp());
     },
-    (e, s) {},
+    (e, s) {
+      if (!kIsWeb) FirebaseCrashlytics.instance.recordError(e, s);
+    },
   );
 }
 

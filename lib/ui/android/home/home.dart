@@ -33,6 +33,7 @@ class _HomeState extends State<Home> {
     super.initState();
     final provider = context.read<SongProvider>();
     provider.loadPlayer();
+    isVoiceAssistantActive = provider.isVoiceAssistantActive;
 
     if (isVoiceAssistantActive) _setupVoiceAssistant();
     _checkNotification();

@@ -1,8 +1,5 @@
-import 'package:envify/envify.dart';
-part 'env.g.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-@Envify()
 abstract class Env {
-  static const cloudMessagingKey = _Env.cloudMessagingKey;
-  static const alanSdkKey = _Env.alanSdkKey;
+  static String alanSdkKey = dotenv.env['ALAN_SDK_KEY'] ?? '';
 }

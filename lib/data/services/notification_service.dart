@@ -33,8 +33,13 @@ class NotificationService {
 
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onSelectNotification: selectNotification,
+      onDidReceiveNotificationResponse: (details) => selectNotification(details.payload),
+      // onDidReceiveBackgroundNotificationResponse: (details) => selectNotificationBackground(details.payload),
     );
+
+    await _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestPermission();
 
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()

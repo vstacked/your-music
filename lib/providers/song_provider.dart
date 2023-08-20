@@ -23,6 +23,10 @@ class SongProvider extends ChangeNotifier {
     }
   }
 
+  bool get isVoiceAssistantActive => _firebaseService.isVoiceAssistantActive;
+
+  Future<void> recordError(dynamic e, StackTrace? s) => _firebaseService.recordError(e, s);
+
   List<SongUpload> queue = [];
   List<FavoriteModel> _favorite = [];
 
@@ -207,6 +211,7 @@ class SongProvider extends ChangeNotifier {
       });
       notifyListeners();
     } catch (e, s) {
+      recordError(e, s);
       debugPrint('_setAudio()| $e');
     }
   }
@@ -217,7 +222,7 @@ class SongProvider extends ChangeNotifier {
         final title = map['title'];
         final playlist = _playlistSource;
 
-        final data = extractTop(query: title, choices: playlist.map((e) => e.title).toList(), limit: 1);
+        final data = extractTop(query: title, choices: playlist.map((e) => e.title).toList(), limit: 1, cutoff: 80);
         final matchingSong = data.isNotEmpty ? playlist[data.first.index] : null;
 
         if (matchingSong != null) {

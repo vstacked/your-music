@@ -56,6 +56,7 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
         });
       }
     } catch (e, s) {
+      provider.recordError(e, s);
       debugPrint('playAudio() | $e');
     }
   }

@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:your_music/data/services/firebase_service.dart';
 import 'package:your_music/data/services/notification_service.dart';
+import 'package:your_music/firebase_options.dart';
 
 import '../constants/app_theme.dart';
 import '../constants/colors.dart';
@@ -39,7 +42,7 @@ class _MyAppState extends State<MyApp> {
     if (apps.isNotEmpty) {
       _initialization = Future.value(apps.first);
     } else {
-      _initialization = Firebase.initializeApp();
+      _initialization = Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     }
   }
 
@@ -49,6 +52,8 @@ class _MyAppState extends State<MyApp> {
     final _messaging = FirebaseMessaging.instance;
     final _auth = FirebaseAuth.instance;
     final _notification = NotificationService.instance;
+    final crashlytics = FirebaseCrashlytics.instance;
+    final remoteConfig = FirebaseRemoteConfig.instance;
 
     return FirebaseService(
       firestore: _firestore,
@@ -56,6 +61,8 @@ class _MyAppState extends State<MyApp> {
       messaging: _messaging,
       auth: _auth,
       notification: _notification,
+      crashlytics: crashlytics,
+      remoteConfig: remoteConfig,
     );
   }
 
@@ -128,6 +135,8 @@ class _MyAppState extends State<MyApp> {
                       ),
                     );
                   }
+
+                  return null;
                 },
               );
             },

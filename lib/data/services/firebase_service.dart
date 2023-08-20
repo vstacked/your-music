@@ -3,13 +3,17 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_performance/firebase_performance.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:googleapis/fcm/v1.dart';
+import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
-import 'package:googleapis_auth/auth_io.dart';
 
 import '../../models/song_model.dart';
 import 'notification_service.dart';
@@ -27,18 +31,40 @@ class FirebaseService {
 
   final NotificationService _notification;
 
+  final FirebaseCrashlytics _crashlytics;
+
+  final FirebaseRemoteConfig _remoteConfig;
+
   FirebaseService({
     required FirebaseFirestore firestore,
     required FirebaseStorage storage,
     required FirebaseMessaging messaging,
     required FirebaseAuth auth,
     required NotificationService notification,
+    required FirebaseCrashlytics crashlytics,
+    required FirebaseRemoteConfig remoteConfig,
   })  : _firestore = firestore,
         _storage = storage,
         _messaging = messaging,
         _auth = auth,
-        _notification = notification {
+        _notification = notification,
+        _crashlytics = crashlytics,
+        _remoteConfig = remoteConfig {
     _auth.signInAnonymously();
+
+    if (!kIsWeb) {
+      _messaging.getNotificationSettings().then((value) {
+        if (value.authorizationStatus != AuthorizationStatus.authorized) _messaging.requestPermission();
+      });
+    }
+
+    _remoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: const Duration(minutes: 1),
+      minimumFetchInterval: const Duration(minutes: 1),
+    ));
+    _remoteConfig.fetchAndActivate();
+
+    FirebasePerformance.instance;
   }
 
   AccessToken? _accessToken;
@@ -53,6 +79,8 @@ class FirebaseService {
 
   bool get isLogin => _auth.currentUser != null;
 
+  bool get isVoiceAssistantActive => _remoteConfig.getBool('voice_assistant');
+
   Future<bool?> login(String username, String password) async {
     try {
       final data = await _adminAuth();
@@ -64,7 +92,7 @@ class FirebaseService {
 
       return false;
     } catch (e, s) {
-      debugPrint('$e');
+      recordError(e, s);
       return null;
     }
   }
@@ -113,6 +141,7 @@ class FirebaseService {
       return true;
     } catch (e, s) {
       debugPrint(e.toString());
+      recordError(e, s);
       return false;
     }
   }
@@ -167,6 +196,7 @@ class FirebaseService {
       return true;
     } catch (e, s) {
       debugPrint(e.toString());
+      recordError(e, s);
       return false;
     }
   }
@@ -177,6 +207,7 @@ class FirebaseService {
       return true;
     } catch (e, s) {
       debugPrint(e.toString());
+      recordError(e, s);
       return false;
     }
   }
@@ -193,8 +224,7 @@ class FirebaseService {
 
     final credentials = ServiceAccountCredentials.fromJson(map);
     final scopes = [
-      'https://www.googleapis.com/auth/firebase.messaging',
-      'https://www.googleapis.com/auth/cloud-platform',
+      FirebaseCloudMessagingApi.firebaseMessagingScope,
     ];
 
     final client = http.Client();
@@ -249,8 +279,11 @@ class FirebaseService {
       );
     } catch (e, s) {
       debugPrint(e.toString());
+      recordError(e, s);
     }
   }
+
+  Future<void> recordError(dynamic e, StackTrace? s) => kIsWeb ? Future.value() : _crashlytics.recordError(e, s);
 
   Future<void> initMessaging() async {
     _messaging.subscribeToTopic(_topic);
