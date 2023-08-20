@@ -21,7 +21,6 @@ class NotificationService {
   final _channel = const AndroidNotificationChannel(
     'high_importance_channel',
     'Your Music Notifications',
-    importance: Importance.max,
   );
   final _initializationSettingsAndroid = const AndroidInitializationSettings('background');
   late final _notificationDetails = NotificationDetails(
@@ -87,5 +86,8 @@ class NotificationService {
       _notificationDetails,
       payload: jsonEncode(message.data),
     );
+
+    final songProvider = navigatorKey.currentContext!.read<SongProvider>();
+    songProvider.loadPlayer();
   }
 }
