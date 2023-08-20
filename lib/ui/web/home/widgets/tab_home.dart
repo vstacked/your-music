@@ -129,7 +129,13 @@ class _GridItems extends StatelessWidget {
         child: StreamBuilder<QuerySnapshot>(
           stream: context.watch<SongProvider>().fetchSongs(),
           builder: (context, snapshot) {
-            if (snapshot.hasError) {
+            final data = snapshot.data;
+
+            if (!snapshot.hasError && data == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError || data == null) {
               return Center(
                 child: Text(
                   'Something Went Wrong..',
@@ -138,11 +144,7 @@ class _GridItems extends StatelessWidget {
               );
             }
 
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasData && snapshot.data!.docs.isEmpty) {
+            if (snapshot.hasData && data.docs.isEmpty) {
               return Center(
                 child: Text(
                   'Song Empty..',
@@ -155,9 +157,9 @@ class _GridItems extends StatelessWidget {
               child: GridView.builder(
                 shrinkWrap: true,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount(context)),
-                itemCount: snapshot.data!.docs.length,
+                itemCount: data.docs.length,
                 itemBuilder: (context, index) {
-                  final song = snapshot.data!.docs[index];
+                  final song = data.docs[index];
                   return _Item(
                     song: SongModel.fromJson(Map.from(song.data() as LinkedHashMap)..remove('created_at'))
                       ..id = song.id,

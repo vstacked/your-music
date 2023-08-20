@@ -97,6 +97,24 @@ class FirebaseService {
     }
   }
 
+  String _formatDuration(Duration? duration) {
+    if (duration == null) return '';
+
+    int hours = duration.inHours;
+    int minutes = duration.inMinutes.remainder(60);
+    int seconds = duration.inSeconds.remainder(60);
+
+    String formattedHours = hours.toString().padLeft(2, '0');
+    String formattedMinutes = minutes.toString().padLeft(2, '0');
+    String formattedSeconds = seconds.toString().padLeft(2, '0');
+
+    if (hours > 0) {
+      return '$formattedHours:$formattedMinutes:$formattedSeconds';
+    } else {
+      return '$formattedMinutes:$formattedSeconds';
+    }
+  }
+
   Future<bool> saveSong(SongUpload songModel) async {
     try {
       final collection = _firestore.collection('songs');
@@ -113,8 +131,7 @@ class FirebaseService {
       final songUrl = await song.ref.getDownloadURL();
 
       // using to get audio duration
-      await audioPlayer.setUrl(songUrl);
-      final songDuration = audioPlayer.duration.toString().split('.').first.substring(2);
+      final songDuration = _formatDuration(await audioPlayer.setUrl(songUrl));
 
       final thumbnail =
           await _storage.ref('thumbnails/$template.$thumbnailExt').putData(songModel.thumbnailPlatformFile!.bytes!);
@@ -169,8 +186,7 @@ class FirebaseService {
 
         final url = await song.ref.getDownloadURL();
 
-        await audioPlayer.setUrl(url);
-        final duration = audioPlayer.duration.toString().split('.').first.substring(2);
+        final duration = _formatDuration(await audioPlayer.setUrl(url));
 
         await collection.doc(songModel.id).update({
           'file_detail': {
@@ -283,7 +299,11 @@ class FirebaseService {
     }
   }
 
-  Future<void> recordError(dynamic e, StackTrace? s) => kIsWeb ? Future.value() : _crashlytics.recordError(e, s);
+  Future<void> recordError(dynamic e, StackTrace? s) {
+    debugPrint('your_music - $e');
+    debugPrintStack(label: 'your_music - ', stackTrace: s);
+    return kIsWeb ? Future.value() : _crashlytics.recordError(e, s);
+  }
 
   Future<void> initMessaging() async {
     _messaging.subscribeToTopic(_topic);

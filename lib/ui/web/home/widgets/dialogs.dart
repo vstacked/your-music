@@ -11,6 +11,8 @@ import 'package:your_music/widgets/icon_button_widget.dart';
 import 'package:your_music/widgets/responsive_layout.dart';
 
 AlertDialog deleteSong(BuildContext context) {
+  final isEmpty = context.select((SongProvider p) => p.isRemoveIdsEmpty());
+
   return AlertDialog(
     title: const Text('Remove Song'),
     content: const Text('Are you sure you want to delete this song?'),
@@ -34,20 +36,21 @@ AlertDialog deleteSong(BuildContext context) {
         ),
         child: const Text('Cancel'),
       ),
-      ElevatedButton(
-        onPressed: () {
-          Navigator.pop(context);
-          context.read<SongProvider>().deleteSong();
-        },
-        style: ButtonStyle(
-          fixedSize: MaterialStateProperty.all(const Size(80, 35)),
-          shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-          backgroundColor: MaterialStateProperty.all(redColor),
-          foregroundColor: MaterialStateProperty.all(greyColor),
-          elevation: MaterialStateProperty.all(0),
+      if (!isEmpty)
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+            context.read<SongProvider>().deleteSong();
+          },
+          style: ButtonStyle(
+            fixedSize: MaterialStateProperty.all(const Size(80, 35)),
+            shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            backgroundColor: MaterialStateProperty.all(redColor),
+            foregroundColor: MaterialStateProperty.all(greyColor),
+            elevation: MaterialStateProperty.all(0),
+          ),
+          child: const Text('Yes'),
         ),
-        child: const Text('Yes'),
-      ),
     ],
   );
 }

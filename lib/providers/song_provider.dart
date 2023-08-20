@@ -99,6 +99,8 @@ class SongProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool isRemoveIdsEmpty() => _removeIds.isEmpty;
+
   void clearRemoveIds() => _removeIds.clear();
 
   Future<void> saveOrUpdateSong(SongUpload song, {bool isEdit = false}) async {
