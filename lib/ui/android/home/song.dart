@@ -10,10 +10,11 @@ class Song extends StatefulWidget {
   final SongModel song;
   final bool isDisable;
   final bool isCard;
-  const Song({Key? key, this.isCard = false, required this.song, this.isDisable = false}) : super(key: key);
+
+  const Song({super.key, this.isCard = false, required this.song, this.isDisable = false});
 
   @override
-  _SongState createState() => _SongState();
+  State<Song> createState() => _SongState();
 }
 
 class _SongState extends State<Song> {
@@ -54,13 +55,13 @@ class _SongState extends State<Song> {
                 child: ListTile(
                   title: Text(
                     widget.song.title,
-                    style: textTheme.subtitle1!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
+                    style: textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: Text(
                     widget.song.singer,
-                    style: textTheme.caption!.copyWith(color: greyColor),
+                    style: textTheme.bodySmall!.copyWith(color: greyColor),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -88,7 +89,7 @@ class _SongState extends State<Song> {
                         ),
                         Text(
                           widget.song.fileDetail!.duration,
-                          style: textTheme.bodyText2!.copyWith(color: greyColor),
+                          style: textTheme.bodyMedium!.copyWith(color: greyColor),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -115,13 +116,13 @@ class _SongState extends State<Song> {
         ),
         title: Text(
           widget.song.title,
-          style: textTheme.subtitle1!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
+          style: textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
           widget.song.singer,
-          style: textTheme.caption!.copyWith(color: greyColor),
+          style: textTheme.bodySmall!.copyWith(color: greyColor),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
@@ -133,7 +134,7 @@ class _SongState extends State<Song> {
               Flexible(
                 child: Text(
                   widget.song.fileDetail!.duration,
-                  style: textTheme.bodyText2!.copyWith(color: greyColor),
+                  style: textTheme.bodyMedium!.copyWith(color: greyColor),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -172,7 +173,7 @@ class _SongState extends State<Song> {
       SnackBar(
         content: Text(
           'Song deleted from Cloud, sorry',
-          style: textTheme.bodyText1!.copyWith(color: greyColor),
+          style: textTheme.bodyLarge!.copyWith(color: greyColor),
         ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: redColor,

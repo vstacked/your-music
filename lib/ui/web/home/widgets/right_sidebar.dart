@@ -193,9 +193,9 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Text(watch.openedSong!.title, style: textTheme.headline6, textAlign: TextAlign.center),
+                      Text(watch.openedSong!.title, style: textTheme.titleLarge, textAlign: TextAlign.center),
                       Text(watch.openedSong!.singer,
-                          style: textTheme.subtitle1!.copyWith(color: greyColor), textAlign: TextAlign.center),
+                          style: textTheme.titleMedium!.copyWith(color: greyColor), textAlign: TextAlign.center),
                       const SizedBox(height: 10),
                       _detail(context, title: 'Description', content: watch.openedSong!.description),
                       const SizedBox(height: 20),
@@ -217,15 +217,15 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        SizedBox(width: double.maxFinite, child: Text(title, style: textTheme.bodyText1)),
+        SizedBox(width: double.maxFinite, child: Text(title, style: textTheme.bodyLarge)),
         Padding(
           padding: const EdgeInsets.only(left: 8),
           child: ReadMoreText(
             content.isEmpty ? '-' : content,
-            style: textTheme.bodyText2!.copyWith(color: greyColor),
+            style: textTheme.bodyMedium!.copyWith(color: greyColor),
             trimMode: TrimMode.Length,
-            lessStyle: textTheme.bodyText2!.copyWith(color: blueColor),
-            moreStyle: textTheme.bodyText2!.copyWith(color: blueColor),
+            lessStyle: textTheme.bodyMedium!.copyWith(color: blueColor),
+            moreStyle: textTheme.bodyMedium!.copyWith(color: blueColor),
             trimCollapsedText: 'more',
             trimExpandedText: 'less',
             textAlign: TextAlign.justify,

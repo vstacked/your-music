@@ -92,7 +92,7 @@ class __MobileAppState extends State<_MobileApp> {
               body: Center(
                 child: Text(
                   'Your Music',
-                  style: Theme.of(context).textTheme.headline4!.copyWith(color: greyColor),
+                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: greyColor),
                 ),
               ),
             ),

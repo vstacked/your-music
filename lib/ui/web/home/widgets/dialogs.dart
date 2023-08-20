@@ -17,29 +17,28 @@ AlertDialog deleteSong(BuildContext context) {
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     backgroundColor: secondaryColor,
     actionsPadding: const EdgeInsets.all(8),
-    contentTextStyle: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+    contentTextStyle: Theme.of(context).textTheme.titleMedium!.copyWith(color: greyColor),
     actions: [
       OutlinedButton(
         onPressed: () {
-          final _read = context.read<SongProvider>();
-          _read.clearRemoveIds();
-          _read.setRemove(false);
+          final read = context.read<SongProvider>();
+          read.clearRemoveIds();
+          read.setRemove(false);
           Navigator.pop(context);
         },
-        child: const Text('Cancel'),
         style: ButtonStyle(
           fixedSize: MaterialStateProperty.all(const Size(80, 35)),
           shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
           side: MaterialStateProperty.all(const BorderSide(color: greyColor, width: 1)),
           foregroundColor: MaterialStateProperty.all(greyColor),
         ),
+        child: const Text('Cancel'),
       ),
       ElevatedButton(
         onPressed: () {
           Navigator.pop(context);
           context.read<SongProvider>().deleteSong();
         },
-        child: const Text('Yes'),
         style: ButtonStyle(
           fixedSize: MaterialStateProperty.all(const Size(80, 35)),
           shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
@@ -47,25 +46,26 @@ AlertDialog deleteSong(BuildContext context) {
           foregroundColor: MaterialStateProperty.all(greyColor),
           elevation: MaterialStateProperty.all(0),
         ),
+        child: const Text('Yes'),
       ),
     ],
   );
 }
 
 Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
-  final _formKey = GlobalKey<FormState>();
-  String? _songEmpty, _thumbnailEmpty;
-  SongUpload _songModel = songModel ?? SongUpload();
+  final formKey = GlobalKey<FormState>();
+  String? songEmpty, thumbnailEmpty;
+  SongUpload model = songModel ?? SongUpload();
 
   Widget button(BuildContext context, void Function(void Function()) state) {
     return _button(
       context,
       onSave: () {
-        _songEmpty = _songModel.songPlatformFile == null ? 'Songs cannot empty' : null;
-        _thumbnailEmpty = _songModel.thumbnailPlatformFile == null ? 'Thumbnails cannot empty' : null;
+        songEmpty = model.songPlatformFile == null ? 'Songs cannot empty' : null;
+        thumbnailEmpty = model.thumbnailPlatformFile == null ? 'Thumbnails cannot empty' : null;
 
-        if (_formKey.currentState!.validate()) {
-          context.read<SongProvider>().saveOrUpdateSong(_songModel, isEdit: isEdit);
+        if (formKey.currentState!.validate()) {
+          context.read<SongProvider>().saveOrUpdateSong(model, isEdit: isEdit);
           Navigator.pop(context);
         }
         state(() {});
@@ -77,7 +77,7 @@ Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
     builder: (context, state) {
       final textTheme = Theme.of(context).textTheme;
       return Form(
-        key: _formKey,
+        key: formKey,
         child: ResponsiveLayout(
           largeScreen: _dialog(
             children: <Widget>[
@@ -97,28 +97,28 @@ Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
                                 children: <Widget>[
                                   _song(
                                     textTheme,
-                                    errorText: _songEmpty,
-                                    songName: _songModel.songPlatformFile != null
-                                        ? _songModel.songPlatformFile?.name
-                                        : _songModel.fileDetail?.name,
+                                    errorText: songEmpty,
+                                    songName: model.songPlatformFile != null
+                                        ? model.songPlatformFile?.name
+                                        : model.fileDetail?.name,
                                     result: (data) {
-                                      _songModel.songPlatformFile = data;
+                                      model.songPlatformFile = data;
                                       state(() {});
                                     },
                                   ),
                                   _field(
                                     'Title',
-                                    initialValue: _songModel.title,
+                                    initialValue: model.title,
                                     onChanged: (value) {
-                                      _songModel.title = value;
+                                      model.title = value;
                                       state(() {});
                                     },
                                   ),
                                   _field(
                                     'Singer',
-                                    initialValue: _songModel.singer,
+                                    initialValue: model.singer,
                                     onChanged: (value) {
-                                      _songModel.singer = value;
+                                      model.singer = value;
                                       state(() {});
                                     },
                                   ),
@@ -129,16 +129,16 @@ Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
                             Expanded(
                               child: Column(
                                 children: <Widget>[
-                                  Text('Thumbnail', style: textTheme.subtitle1!.copyWith(color: greyColor)),
+                                  Text('Thumbnail', style: textTheme.titleMedium!.copyWith(color: greyColor)),
                                   const SizedBox(height: 10),
                                   _thumbnail(
                                     180,
                                     textTheme,
-                                    errorText: _thumbnailEmpty,
-                                    urlPath: _songModel.thumbnailUrl,
-                                    bytes: _songModel.thumbnailPlatformFile?.bytes,
+                                    errorText: thumbnailEmpty,
+                                    urlPath: model.thumbnailUrl,
+                                    bytes: model.thumbnailPlatformFile?.bytes,
                                     result: (data) {
-                                      _songModel.thumbnailPlatformFile = data;
+                                      model.thumbnailPlatformFile = data;
                                       state(() {});
                                     },
                                   ),
@@ -154,9 +154,9 @@ Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
                                 'Lyric',
                                 isTextArea: true,
                                 isOptional: true,
-                                initialValue: _songModel.lyric,
+                                initialValue: model.lyric,
                                 onChanged: (value) {
-                                  _songModel.lyric = value;
+                                  model.lyric = value;
                                   state(() {});
                                 },
                               ),
@@ -167,9 +167,9 @@ Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
                                 'Description',
                                 isTextArea: true,
                                 isOptional: true,
-                                initialValue: _songModel.description,
+                                initialValue: model.description,
                                 onChanged: (data) {
-                                  _songModel.description = data;
+                                  model.description = data;
                                   state(() {});
                                 },
                               ),
@@ -196,16 +196,16 @@ Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
                       children: <Widget>[
                         Row(
                           children: [
-                            Text('Thumbnail', style: textTheme.subtitle1!.copyWith(color: greyColor)),
+                            Text('Thumbnail', style: textTheme.titleMedium!.copyWith(color: greyColor)),
                             const SizedBox(width: 50),
                             _thumbnail(
                               150,
                               textTheme,
-                              errorText: _thumbnailEmpty,
-                              urlPath: _songModel.thumbnailUrl,
-                              bytes: _songModel.thumbnailPlatformFile?.bytes,
+                              errorText: thumbnailEmpty,
+                              urlPath: model.thumbnailUrl,
+                              bytes: model.thumbnailPlatformFile?.bytes,
                               result: (data) {
-                                _songModel.thumbnailPlatformFile = data;
+                                model.thumbnailPlatformFile = data;
                                 state(() {});
                               },
                             ),
@@ -214,28 +214,27 @@ Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
                         const SizedBox(height: 25),
                         _song(
                           textTheme,
-                          errorText: _songEmpty,
-                          songName: _songModel.songPlatformFile != null
-                              ? _songModel.songPlatformFile?.name
-                              : _songModel.fileDetail?.name,
+                          errorText: songEmpty,
+                          songName:
+                              model.songPlatformFile != null ? model.songPlatformFile?.name : model.fileDetail?.name,
                           result: (data) {
-                            _songModel.songPlatformFile = data;
+                            model.songPlatformFile = data;
                             state(() {});
                           },
                         ),
                         _field(
                           'Title',
-                          initialValue: _songModel.title,
+                          initialValue: model.title,
                           onChanged: (value) {
-                            _songModel.title = value;
+                            model.title = value;
                             state(() {});
                           },
                         ),
                         _field(
                           'Singer',
-                          initialValue: _songModel.singer,
+                          initialValue: model.singer,
                           onChanged: (value) {
-                            _songModel.singer = value;
+                            model.singer = value;
                             state(() {});
                           },
                         ),
@@ -243,9 +242,9 @@ Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
                           'Lyric',
                           isTextArea: true,
                           isOptional: true,
-                          initialValue: _songModel.lyric,
+                          initialValue: model.lyric,
                           onChanged: (value) {
-                            _songModel.lyric = value;
+                            model.lyric = value;
                             state(() {});
                           },
                         ),
@@ -253,9 +252,9 @@ Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
                           'Description',
                           isTextArea: true,
                           isOptional: true,
-                          initialValue: _songModel.description,
+                          initialValue: model.description,
                           onChanged: (data) {
-                            _songModel.description = data;
+                            model.description = data;
                             state(() {});
                           },
                         ),
@@ -277,7 +276,7 @@ Dialog _dialog({required List<Widget> children}) {
   return Dialog(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     backgroundColor: secondaryColor,
-    child: SizedBox(width: 500, child: Column(children: children, mainAxisSize: MainAxisSize.min)),
+    child: SizedBox(width: 500, child: Column(mainAxisSize: MainAxisSize.min, children: children)),
   );
 }
 
@@ -292,7 +291,7 @@ Column _title(BuildContext context, {required String title}) {
           children: <Widget>[
             Text(
               title,
-              style: textTheme.headline6!.copyWith(color: greyColor.withOpacity(.75), fontWeight: FontWeight.w600),
+              style: textTheme.titleLarge!.copyWith(color: greyColor.withOpacity(.75), fontWeight: FontWeight.w600),
             ),
             IconButtonWidget(
               icon: const Icon(Icons.close),
@@ -312,11 +311,11 @@ Column _title(BuildContext context, {required String title}) {
 OutlinedButton _chooseFile(Size size, {required VoidCallback onPressed}) {
   return OutlinedButton(
     onPressed: onPressed,
-    child: const Text('Choose File'),
     style: ButtonStyle(
       fixedSize: MaterialStateProperty.all(size),
       side: MaterialStateProperty.all(const BorderSide(width: .75, color: greyColor)),
     ),
+    child: const Text('Choose File'),
   );
 }
 
@@ -336,7 +335,7 @@ Column _thumbnail(double size, TextTheme textTheme,
         ),
       ),
       const SizedBox(height: 20),
-      if (errorText != null) Text(errorText, style: textTheme.bodyText1!.copyWith(color: redColor)),
+      if (errorText != null) Text(errorText, style: textTheme.bodyLarge!.copyWith(color: redColor)),
       _chooseFile(
         const Size(160, 35),
         onPressed: () async {
@@ -353,7 +352,7 @@ Column _song(TextTheme textTheme,
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text('Song', style: textTheme.subtitle1!.copyWith(color: greyColor)),
+      Text('Song', style: textTheme.titleMedium!.copyWith(color: greyColor)),
       const SizedBox(height: 10),
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,11 +360,11 @@ Column _song(TextTheme textTheme,
           if (songName != null)
             Text(
               songName,
-              style: textTheme.bodyText1!.copyWith(color: greyColor),
+              style: textTheme.bodyLarge!.copyWith(color: greyColor),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-          if (errorText != null) Text(errorText, style: textTheme.bodyText1!.copyWith(color: redColor)),
+          if (errorText != null) Text(errorText, style: textTheme.bodyLarge!.copyWith(color: redColor)),
           const SizedBox(height: 10),
           _chooseFile(
             const Size(140, 30),
@@ -407,21 +406,21 @@ Column _button(BuildContext context, {required void Function()? onSave}) {
           children: [
             OutlinedButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
               style: ButtonStyle(
                 fixedSize: MaterialStateProperty.all(const Size(88, 36)),
                 side: MaterialStateProperty.all(const BorderSide(width: .75, color: greyColor)),
               ),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: onSave,
-              child: const Text('Save'),
               style: ButtonStyle(
                 fixedSize: MaterialStateProperty.all(const Size(88, 36)),
                 backgroundColor: MaterialStateProperty.all(greenColor),
                 elevation: MaterialStateProperty.all(0),
                 foregroundColor: MaterialStateProperty.all(greyColor),
               ),
+              child: const Text('Save'),
             ),
           ],
         ),

@@ -9,7 +9,7 @@ class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
 
   @override
-  _LoginState createState() => _LoginState();
+  State<Login> createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
@@ -33,8 +33,7 @@ class _LoginState extends State<Login> {
           height: 491,
           width: 475,
           child: Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             color: primaryColor,
             child: Padding(
               // TODO (value?)
@@ -46,7 +45,7 @@ class _LoginState extends State<Login> {
                     const Spacer(),
                     Text(
                       'Your Music',
-                      style: textTheme.headline4!.copyWith(color: greyColor),
+                      style: textTheme.headlineMedium!.copyWith(color: greyColor),
                     ),
                     const Spacer(),
                     BaseField(
@@ -74,7 +73,7 @@ class _LoginState extends State<Login> {
                       selector: (_, provider) => provider.errorMessage,
                       builder: (_, value, __) => Text(
                         value,
-                        style: textTheme.bodyText1!.copyWith(color: redColor),
+                        style: textTheme.bodyLarge!.copyWith(color: redColor),
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -113,7 +112,7 @@ class _LoginState extends State<Login> {
 
   void login() async {
     final success = await _authProvider.login();
-    if (success) Navigator.pop(context);
+    if (context.mounted && success) Navigator.pop(context);
   }
 }
 
@@ -127,10 +126,7 @@ class _TextButton extends StatelessWidget {
     if (!isLoading) {
       return Text(
         'Login',
-        style: Theme.of(context)
-            .textTheme
-            .button!
-            .copyWith(fontSize: 17, color: greyColor),
+        style: Theme.of(context).textTheme.labelLarge!.copyWith(fontSize: 17, color: greyColor),
       );
     }
 

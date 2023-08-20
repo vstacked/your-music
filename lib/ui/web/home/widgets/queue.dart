@@ -29,7 +29,7 @@ class Queue extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 'Queue',
-                style: textTheme.subtitle1!.copyWith(color: greyColor, fontWeight: FontWeight.bold),
+                style: textTheme.titleMedium!.copyWith(color: greyColor, fontWeight: FontWeight.bold),
               ),
             ),
             const Divider(thickness: 1, color: greyColor, height: 0),

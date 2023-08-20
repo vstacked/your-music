@@ -18,7 +18,9 @@ class Sidebar extends StatelessWidget {
 
     if (ResponsiveLayout.isMediumScreen(context)) {
       return const _MediumSidebar();
-    } else if (ResponsiveLayout.isSmallScreen(context)) return const SizedBox();
+    } else if (ResponsiveLayout.isSmallScreen(context)) {
+      return const SizedBox();
+    }
     return const _LargeSidebar();
   }
 }
@@ -38,7 +40,7 @@ class _LargeSidebar extends StatelessWidget {
           const SizedBox(height: 50),
           Text(
             'Your Music',
-            style: textTheme.headline5!.copyWith(color: greyColor.withOpacity(.75), fontWeight: FontWeight.w600),
+            style: textTheme.headlineSmall!.copyWith(color: greyColor.withOpacity(.75), fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -69,10 +71,10 @@ class _LargeSidebar extends StatelessWidget {
   }
 
   Widget _tabMenu() {
-    return RotatedBox(
+    return const RotatedBox(
       quarterTurns: -1,
       child: Row(
-        children: const [
+        children: [
           SizedBox(width: 10),
           Icon(Icons.home),
           SizedBox(width: 10),
@@ -98,7 +100,7 @@ class _MediumSidebar extends StatelessWidget {
           const SizedBox(height: 50),
           Text(
             'Your Music',
-            style: textTheme.headline5!.copyWith(color: greyColor.withOpacity(.75), fontWeight: FontWeight.w600),
+            style: textTheme.headlineSmall!.copyWith(color: greyColor.withOpacity(.75), fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -129,13 +131,13 @@ class _MediumSidebar extends StatelessWidget {
   }
 
   Widget _tabMenu() {
-    return RotatedBox(
+    return const RotatedBox(
       quarterTurns: -1,
       child: SizedBox(
         width: double.maxFinite,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: const [
+          children: [
             SizedBox(width: 10),
             Icon(Icons.home),
             SizedBox(width: 10),
@@ -171,8 +173,8 @@ class SmallSidebar extends StatelessWidget {
                   ),
                   Text(
                     'Your Music',
-                    style:
-                        textTheme.headline5!.copyWith(color: greyColor.withOpacity(.75), fontWeight: FontWeight.w600),
+                    style: textTheme.headlineSmall!
+                        .copyWith(color: greyColor.withOpacity(.75), fontWeight: FontWeight.w600),
                   )
                 ],
               ),
@@ -206,9 +208,9 @@ class SmallSidebar extends StatelessWidget {
   }
 
   Widget _tabMenu() {
-    return RotatedBox(
+    return const RotatedBox(
       quarterTurns: -1,
-      child: Row(children: const [SizedBox(width: 10), Icon(Icons.home), SizedBox(width: 10), Text('Home')]),
+      child: Row(children: [SizedBox(width: 10), Icon(Icons.home), SizedBox(width: 10), Text('Home')]),
     );
   }
 }

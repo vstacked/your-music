@@ -28,7 +28,7 @@ class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -47,20 +47,20 @@ class _MyAppState extends State<MyApp> {
   }
 
   FirebaseService _getFirebaseService() {
-    final _firestore = FirebaseFirestore.instance;
-    final _storage = FirebaseStorage.instance;
-    final _messaging = FirebaseMessaging.instance;
-    final _auth = FirebaseAuth.instance;
-    final _notification = NotificationService.instance;
+    final firestore = FirebaseFirestore.instance;
+    final storage = FirebaseStorage.instance;
+    final messaging = FirebaseMessaging.instance;
+    final auth = FirebaseAuth.instance;
+    final notification = NotificationService.instance;
     final crashlytics = FirebaseCrashlytics.instance;
     final remoteConfig = FirebaseRemoteConfig.instance;
 
     return FirebaseService(
-      firestore: _firestore,
-      storage: _storage,
-      messaging: _messaging,
-      auth: _auth,
-      notification: _notification,
+      firestore: firestore,
+      storage: storage,
+      messaging: messaging,
+      auth: auth,
+      notification: notification,
       crashlytics: crashlytics,
       remoteConfig: remoteConfig,
     );
@@ -78,7 +78,7 @@ class _MyAppState extends State<MyApp> {
               body: Center(
                 child: Text(
                   'Something Went Wrong..',
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(color: greyColor),
                 ),
               ),
             ),
@@ -86,16 +86,16 @@ class _MyAppState extends State<MyApp> {
         }
 
         if (snapshot.connectionState == ConnectionState.done) {
-          final _firebaseService = _getFirebaseService();
+          final firebaseService = _getFirebaseService();
 
           return MultiProvider(
             providers: [
               if (kIsWeb)
                 ChangeNotifierProvider(
-                  create: (_) => AuthProvider(_firebaseService),
+                  create: (_) => AuthProvider(firebaseService),
                 ),
               ChangeNotifierProvider(
-                create: (_) => SongProvider(_firebaseService),
+                create: (_) => SongProvider(firebaseService),
               ),
             ],
             builder: (context, child) {
@@ -130,8 +130,8 @@ class _MyAppState extends State<MyApp> {
                       transitionsBuilder: (context, animation, secondaryAnimation, child) => CupertinoPageTransition(
                         primaryRouteAnimation: animation,
                         secondaryRouteAnimation: secondaryAnimation,
-                        child: child,
                         linearTransition: true,
+                        child: child,
                       ),
                     );
                   }

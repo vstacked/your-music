@@ -17,6 +17,7 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
   final VoidCallback onPlayPause;
   final VoidCallback? onNext;
   final double maxHeight;
+
   const SliverSongDelegate({
     required this.sliderValue,
     required this.sliderOnChanged,
@@ -98,12 +99,12 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
             children: [
               Text(
                 song?.title ?? '-',
-                style: textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
+                style: textTheme.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
               ),
               const SizedBox(height: 8),
               Text(
                 song?.singer ?? '-',
-                style: textTheme.subtitle2!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
+                style: textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
               ),
               if (!isCollapsed) _tabletActions(textTheme, isCollapsed),
             ],
@@ -158,12 +159,12 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
           children: [
             Text(
               song?.title ?? '-',
-              style: textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
+              style: textTheme.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
             ),
             const SizedBox(height: 8),
             Text(
               song?.singer ?? '-',
-              style: textTheme.subtitle2!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
+              style: textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
             )
           ],
         ),

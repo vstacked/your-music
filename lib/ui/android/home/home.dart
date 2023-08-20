@@ -19,10 +19,10 @@ import 'song.dart';
 import 'bottom_bar/bottom_bar.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key});
 
   @override
-  _HomeState createState() => _HomeState();
+  State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
@@ -50,8 +50,8 @@ class _HomeState extends State<Home> {
     final data = prefs.getString(KeyConstant.prefNotification);
     if (data == null) return;
 
-    final _notification = NotificationService.instance;
-    _notification.selectNotification(data);
+    final notification = NotificationService.instance;
+    notification.selectNotification(data);
 
     prefs.remove(KeyConstant.prefNotification);
   }
@@ -90,7 +90,7 @@ class _HomeState extends State<Home> {
                 sliver: SliverToBoxAdapter(
                   child: Text(
                     'SONG',
-                    style: textTheme.headline5!.copyWith(fontWeight: FontWeight.w600),
+                    style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -103,7 +103,7 @@ class _HomeState extends State<Home> {
                         child: Center(
                           child: Text(
                             'Song Empty..',
-                            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                            style: Theme.of(context).textTheme.titleMedium!.copyWith(color: greyColor),
                           ),
                         ),
                       );
@@ -150,7 +150,7 @@ class _HomeState extends State<Home> {
                       child: Center(
                         child: Text(
                           'Something Went Wrong..',
-                          style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                          style: Theme.of(context).textTheme.titleMedium!.copyWith(color: greyColor),
                         ),
                       ),
                     );

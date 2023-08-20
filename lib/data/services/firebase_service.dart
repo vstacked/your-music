@@ -99,16 +99,16 @@ class FirebaseService {
 
   Future<bool> saveSong(SongUpload songModel) async {
     try {
-      final _collection = _firestore.collection('songs');
+      final collection = _firestore.collection('songs');
 
-      final _template = '${_auth.currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
+      final template = '${_auth.currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
 
       final AudioPlayer audioPlayer = AudioPlayer();
 
       final songExt = songModel.songPlatformFile!.name.split('.').last;
       final thumbnailExt = songModel.thumbnailPlatformFile!.name.split('.').last;
 
-      final song = await _storage.ref('songs/$_template.$songExt').putData(songModel.songPlatformFile!.bytes!);
+      final song = await _storage.ref('songs/$template.$songExt').putData(songModel.songPlatformFile!.bytes!);
 
       final songUrl = await song.ref.getDownloadURL();
 
@@ -117,11 +117,11 @@ class FirebaseService {
       final songDuration = audioPlayer.duration.toString().split('.').first.substring(2);
 
       final thumbnail =
-          await _storage.ref('thumbnails/$_template.$thumbnailExt').putData(songModel.thumbnailPlatformFile!.bytes!);
+          await _storage.ref('thumbnails/$template.$thumbnailExt').putData(songModel.thumbnailPlatformFile!.bytes!);
 
       final thumbnailUrl = await thumbnail.ref.getDownloadURL();
 
-      await _collection.add({
+      await collection.add({
         'title': songModel.title,
         'singer': songModel.singer,
         'file_detail': {
@@ -148,13 +148,13 @@ class FirebaseService {
 
   Future<bool> updateSong(SongUpload songModel) async {
     try {
-      final _collection = _firestore.collection('songs');
+      final collection = _firestore.collection('songs');
 
-      final _template = '${_auth.currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
+      final template = '${_auth.currentUser!.uid}-${DateTime.now().toLocal().toIso8601String()}';
 
       final AudioPlayer audioPlayer = AudioPlayer();
 
-      await _collection.doc(songModel.id).update({
+      await collection.doc(songModel.id).update({
         'title': songModel.title,
         'singer': songModel.singer,
         'lyric': songModel.lyric,
@@ -165,14 +165,14 @@ class FirebaseService {
       if (songModel.songPlatformFile != null) {
         final ext = songModel.songPlatformFile!.name.split('.').last;
 
-        final song = await _storage.ref('songs/$_template.$ext').putData(songModel.songPlatformFile!.bytes!);
+        final song = await _storage.ref('songs/$template.$ext').putData(songModel.songPlatformFile!.bytes!);
 
         final url = await song.ref.getDownloadURL();
 
         await audioPlayer.setUrl(url);
         final duration = audioPlayer.duration.toString().split('.').first.substring(2);
 
-        await _collection.doc(songModel.id).update({
+        await collection.doc(songModel.id).update({
           'file_detail': {
             'name': songModel.songPlatformFile!.name,
             'url': url,
@@ -186,9 +186,9 @@ class FirebaseService {
         final ext = songModel.thumbnailPlatformFile!.name.split('.').last;
 
         final thumbnail =
-            await _storage.ref('thumbnails/$_template.$ext').putData(songModel.thumbnailPlatformFile!.bytes!);
+            await _storage.ref('thumbnails/$template.$ext').putData(songModel.thumbnailPlatformFile!.bytes!);
 
-        await _collection.doc(songModel.id).update({
+        await collection.doc(songModel.id).update({
           'thumbnail_url': await thumbnail.ref.getDownloadURL(),
         });
       }

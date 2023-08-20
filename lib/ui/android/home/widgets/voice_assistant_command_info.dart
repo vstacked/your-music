@@ -30,10 +30,10 @@ class VoiceAssistantCommandInfo extends StatelessWidget {
                       theme,
                       title: RichText(
                         text: TextSpan(
-                          style: theme.bodyText1?.copyWith(color: greyColor),
+                          style: theme.bodyLarge?.copyWith(color: greyColor),
                           text: 'play',
                           children: [
-                            TextSpan(text: ' title ', style: theme.bodyText1?.copyWith(color: blueColor)),
+                            TextSpan(text: ' title ', style: theme.bodyLarge?.copyWith(color: blueColor)),
                             const TextSpan(text: 'song'),
                           ],
                         ),
@@ -42,32 +42,32 @@ class VoiceAssistantCommandInfo extends StatelessWidget {
                     ),
                     _command(
                       theme,
-                      title: Text('play', style: theme.bodyText1?.copyWith(color: greyColor)),
+                      title: Text('play', style: theme.bodyLarge?.copyWith(color: greyColor)),
                       caption: 'play songs randomly',
                     ),
                     _command(
                       theme,
-                      title: Text('resume', style: theme.bodyText1?.copyWith(color: greyColor)),
+                      title: Text('resume', style: theme.bodyLarge?.copyWith(color: greyColor)),
                       caption: 'play the song that was paused again',
                     ),
                     _command(
                       theme,
-                      title: Text('stop | pause', style: theme.bodyText1?.copyWith(color: greyColor)),
+                      title: Text('stop | pause', style: theme.bodyLarge?.copyWith(color: greyColor)),
                       caption: 'stop the currently playing song',
                     ),
                     _command(
                       theme,
-                      title: Text('next', style: theme.bodyText1?.copyWith(color: greyColor)),
+                      title: Text('next', style: theme.bodyLarge?.copyWith(color: greyColor)),
                       caption: 'play the next song',
                     ),
                     _command(
                       theme,
-                      title: Text('previous', style: theme.bodyText1?.copyWith(color: greyColor)),
+                      title: Text('previous', style: theme.bodyLarge?.copyWith(color: greyColor)),
                       caption: 'play the previous song',
                     ),
                     _command(
                       theme,
-                      title: Text('about', style: theme.bodyText1?.copyWith(color: greyColor)),
+                      title: Text('about', style: theme.bodyLarge?.copyWith(color: greyColor)),
                       caption: 'description about the application',
                     ),
                   ],
@@ -77,7 +77,7 @@ class VoiceAssistantCommandInfo extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             backgroundColor: secondaryColor,
             actionsPadding: const EdgeInsets.all(8),
-            contentTextStyle: theme.subtitle1!.copyWith(color: greyColor),
+            contentTextStyle: theme.titleMedium!.copyWith(color: greyColor),
           ),
         );
       },
@@ -92,10 +92,10 @@ class VoiceAssistantCommandInfo extends StatelessWidget {
     return TableRow(
       children: <Widget>[
         title,
-        Text('-', style: theme.bodyText1),
+        Text('-', style: theme.bodyLarge),
         Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
-          child: Text(caption, style: theme.caption?.copyWith(color: Colors.white)),
+          child: Text(caption, style: theme.bodySmall?.copyWith(color: Colors.white)),
         ),
       ],
     );

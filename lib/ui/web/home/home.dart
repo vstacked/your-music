@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:your_music/constants/colors.dart';
 import 'package:your_music/providers/song_provider.dart';
@@ -26,8 +25,8 @@ class Home extends StatelessWidget {
         drawerScrimColor: overlayColor,
         body: Stack(
           children: [
-            Row(
-              children: const <Widget>[
+            const Row(
+              children: <Widget>[
                 Sidebar(),
                 Expanded(
                   child: RotatedBox(

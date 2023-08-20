@@ -16,6 +16,7 @@ import '../home.dart';
 
 class TabHome extends StatelessWidget {
   const TabHome({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final read = context.read<SongProvider>();
@@ -31,7 +32,7 @@ class TabHome extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text('All Songs', style: textTheme.headline5!.copyWith(fontWeight: FontWeight.bold)),
+                Text('All Songs', style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -106,7 +107,7 @@ class _AppBar extends StatelessWidget {
             ),
             Text(
               'Your Music',
-              style: textTheme.headline5!.copyWith(color: greyColor.withOpacity(.75), fontWeight: FontWeight.w600),
+              style: textTheme.headlineSmall!.copyWith(color: greyColor.withOpacity(.75), fontWeight: FontWeight.w600),
             ),
             const SizedBox(width: 25),
           ],
@@ -119,6 +120,7 @@ class _AppBar extends StatelessWidget {
 
 class _GridItems extends StatelessWidget {
   const _GridItems({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Flexible(
@@ -131,7 +133,7 @@ class _GridItems extends StatelessWidget {
               return Center(
                 child: Text(
                   'Something Went Wrong..',
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(color: greyColor),
                 ),
               );
             }
@@ -144,7 +146,7 @@ class _GridItems extends StatelessWidget {
               return Center(
                 child: Text(
                   'Song Empty..',
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(color: greyColor),
                 ),
               );
             }
@@ -183,6 +185,7 @@ class _GridItems extends StatelessWidget {
 class _Item extends StatelessWidget {
   const _Item({Key? key, required this.song}) : super(key: key);
   final SongModel song;
+
   @override
   Widget build(BuildContext context) {
     final watch = context.watch<SongProvider>();
@@ -194,13 +197,13 @@ class _Item extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: () {
-              final _read = context.read<SongProvider>();
-              if (_read.isRemove) {
-                _read.setRemoveIds(song.id);
+              final read = context.read<SongProvider>();
+              if (read.isRemove) {
+                read.setRemoveIds(song.id);
               } else {
-                if (_read.openedSong?.id == song.id) return;
-                _read.setOpenedSong(null);
-                _read.setOpenedSong(song);
+                if (read.openedSong?.id == song.id) return;
+                read.setOpenedSong(null);
+                read.setOpenedSong(song);
                 if (ResponsiveLayout.isSmallScreen(context)) scaffoldKey.currentState!.openEndDrawer();
               }
             },

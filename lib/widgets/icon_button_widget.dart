@@ -30,7 +30,7 @@ class IconButtonWidget extends StatelessWidget {
           side: MaterialStateProperty.all(BorderSide(color: color)),
           fixedSize: MaterialStateProperty.all(const Size.fromHeight(47.5)),
           shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-          textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.subtitle1),
+          textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.titleMedium),
         ),
       );
     }

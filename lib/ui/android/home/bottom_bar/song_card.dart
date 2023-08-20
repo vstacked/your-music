@@ -10,11 +10,12 @@ import '../../../../models/position_data.dart';
 import '../../../../providers/song_provider.dart';
 
 class SongCard extends StatefulWidget {
-  const SongCard({Key? key, this.onPanUpdate}) : super(key: key);
+  const SongCard({super.key, this.onPanUpdate});
+
   final void Function(DragUpdateDetails details)? onPanUpdate;
 
   @override
-  _SongCardState createState() => _SongCardState();
+  State<SongCard> createState() => _SongCardState();
 }
 
 class _SongCardState extends State<SongCard> with SingleTickerProviderStateMixin {
@@ -111,13 +112,13 @@ class _SongCardState extends State<SongCard> with SingleTickerProviderStateMixin
               minVerticalPadding: 0,
               title: Text(
                 provider.playedSong!.title,
-                style: textTheme.subtitle1!.copyWith(color: greyColor),
+                style: textTheme.titleMedium!.copyWith(color: greyColor),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(
                 provider.playedSong!.fileDetail?.duration ?? '-',
-                style: textTheme.caption!.copyWith(color: greyColor.withOpacity(.7)),
+                style: textTheme.bodySmall!.copyWith(color: greyColor.withOpacity(.7)),
               ),
             ),
           ),
@@ -127,10 +128,10 @@ class _SongCardState extends State<SongCard> with SingleTickerProviderStateMixin
           //   _controller.stop();
           // },
           onPanUpdate: widget.onPanUpdate,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(color: Colors.transparent),
+          child: const DecoratedBox(
+            decoration: BoxDecoration(color: Colors.transparent),
             child: Row(
-              children: const <Widget>[
+              children: <Widget>[
                 Icon(Icons.keyboard_arrow_up, size: 35, color: greyColor),
                 SizedBox(width: 32.9),
               ],

@@ -11,11 +11,12 @@ import '../shapes/hidden_thumb_shape.dart';
 import '../shapes/slider_thumb_shape.dart';
 
 class SeekBar extends StatefulWidget {
-  const SeekBar({Key? key, this.hideSlider = false}) : super(key: key);
   final bool hideSlider;
 
+  const SeekBar({super.key, this.hideSlider = false});
+
   @override
-  _SeekBarState createState() => _SeekBarState();
+  State<SeekBar> createState() => _SeekBarState();
 }
 
 class _SeekBarState extends State<SeekBar> {
@@ -46,7 +47,7 @@ class _SeekBarState extends State<SeekBar> {
         if (widget.hideSlider) {
           return Text(
             '${isPlaying ? durationFormatted(duration(positionData?.position)) : '00:00'} / ${isPlaying ? durationFormatted(duration(positionData?.duration)) : provider.detailSong?.fileDetail?.duration}',
-            style: textTheme.subtitle2!.copyWith(color: greyColor),
+            style: textTheme.titleSmall!.copyWith(color: greyColor),
           );
         }
         return Row(
@@ -54,7 +55,7 @@ class _SeekBarState extends State<SeekBar> {
           children: <Widget>[
             Text(
               isPlaying ? durationFormatted(duration(positionData?.position)) : '00:00',
-              style: textTheme.subtitle2!.copyWith(color: greyColor),
+              style: textTheme.titleSmall!.copyWith(color: greyColor),
             ),
             Expanded(
               child: Stack(
@@ -132,7 +133,7 @@ class _SeekBarState extends State<SeekBar> {
               isPlaying
                   ? durationFormatted(duration(positionData?.duration))
                   : provider.detailSong?.fileDetail?.duration ?? '00:00',
-              style: textTheme.subtitle2!.copyWith(color: greyColor),
+              style: textTheme.titleSmall!.copyWith(color: greyColor),
             ),
           ],
         );

@@ -6,7 +6,7 @@ import 'dart:developer' as dev;
 class Observer {
   const Observer._();
 
-  static final _RouteObserver route = _RouteObserver();
+  static final route = _RouteObserver();
 }
 
 class _RouteObserver extends RouteObserver {
@@ -57,12 +57,12 @@ class NavStack<T> implements _NavStack<T> {
 
   @override
   List<T> fetchAll() {
-    final _list = <T>[];
+    final list = <T>[];
 
     for (var i = 0; i < length; i++) {
-      _list.add(_internal.elementAt(i));
+      list.add(_internal.elementAt(i));
     }
-    return _list;
+    return list;
   }
 
   @override

@@ -6,10 +6,11 @@ import 'song_card.dart';
 
 class BottomBar extends StatefulWidget {
   final double padding;
-  const BottomBar({Key? key, required this.padding}) : super(key: key);
+
+  const BottomBar({super.key, required this.padding});
 
   @override
-  _BottomBarState createState() => _BottomBarState();
+  State<BottomBar> createState() => _BottomBarState();
 }
 
 class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMixin {

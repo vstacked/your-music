@@ -22,7 +22,7 @@ class Favorite extends StatelessWidget {
         elevation: 0,
         title: Text(
           'FAVORITE',
-          style: textTheme.subtitle1!.copyWith(color: greyColor, fontWeight: FontWeight.w600),
+          style: textTheme.titleMedium!.copyWith(color: greyColor, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -43,7 +43,7 @@ class Favorite extends StatelessWidget {
               return Center(
                 child: Text(
                   'Song Empty..',
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(color: greyColor),
                 ),
               );
             } else {
@@ -94,7 +94,7 @@ class Favorite extends StatelessWidget {
             return Center(
               child: Text(
                 'Something Went Wrong..',
-                style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(color: greyColor),
               ),
             );
           }

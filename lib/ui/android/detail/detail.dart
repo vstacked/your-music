@@ -11,10 +11,10 @@ import 'slivers/sliver_tab_bar_delegate.dart';
 class Detail extends StatefulWidget {
   final VoidCallback? onBackPressed;
 
-  const Detail({Key? key, this.onBackPressed}) : super(key: key);
+  const Detail({super.key, this.onBackPressed});
 
   @override
-  _DetailState createState() => _DetailState();
+  State<Detail> createState() => _DetailState();
 }
 
 class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
@@ -94,7 +94,7 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
           elevation: 0,
           title: Text(
             'DETAIL',
-            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor, fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.titleMedium!.copyWith(color: greyColor, fontWeight: FontWeight.w600),
           ),
           centerTitle: true,
           leading: IconButton(

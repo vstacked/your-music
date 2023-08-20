@@ -25,7 +25,7 @@ class BaseField extends StatefulWidget {
   final String? initialValue;
 
   @override
-  _BaseFieldState createState() => _BaseFieldState();
+  State<BaseField> createState() => _BaseFieldState();
 }
 
 class _BaseFieldState extends State<BaseField> {
@@ -38,8 +38,7 @@ class _BaseFieldState extends State<BaseField> {
       children: [
         Text(
           widget.title,
-          style:
-              Theme.of(context).textTheme.subtitle1!.copyWith(color: greyColor),
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(color: greyColor),
         ),
         const SizedBox(height: 10),
         TextFormField(
@@ -67,10 +66,7 @@ class _BaseFieldState extends State<BaseField> {
               borderSide: const BorderSide(color: greyColor, width: 2),
             ),
             errorText: widget.errorMessage,
-            errorStyle: Theme.of(context)
-                .textTheme
-                .bodyText1!
-                .copyWith(color: redColor),
+            errorStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(color: redColor),
             suffixIcon: (widget.isPassword)
                 ? Transform.scale(
                     scale: .5,
@@ -80,9 +76,7 @@ class _BaseFieldState extends State<BaseField> {
                           isObscure = !isObscure;
                         });
                       },
-                      icon: isObscure
-                          ? const Icon(Icons.visibility)
-                          : const Icon(Icons.visibility_off),
+                      icon: isObscure ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),
                       iconSize: 48,
                       padding: EdgeInsets.zero,
                     ),

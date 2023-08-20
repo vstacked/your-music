@@ -26,7 +26,7 @@ class SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
           children: [
             TabBar(
               indicatorColor: Colors.transparent,
-              labelStyle: textTheme.subtitle1!.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+              labelStyle: textTheme.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
               labelColor: greyColor,
               tabs: const [Tab(text: 'Description'), Tab(text: 'Lyric')],
             ),
