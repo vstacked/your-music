@@ -67,7 +67,7 @@ Widget songDialog({bool isEdit = false, SongUpload? songModel}) {
         songEmpty = model.songPlatformFile == null ? 'Songs cannot empty' : null;
         thumbnailEmpty = model.thumbnailPlatformFile == null ? 'Thumbnails cannot empty' : null;
 
-        if (formKey.currentState!.validate() && songEmpty == null && thumbnailEmpty == null) {
+        if (formKey.currentState!.validate() && ((!isEdit && songEmpty == null && thumbnailEmpty == null) || isEdit)) {
           context.read<SongProvider>().saveOrUpdateSong(model, isEdit: isEdit);
           Navigator.pop(context);
         }
