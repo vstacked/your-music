@@ -14,6 +14,8 @@ import 'package:googleapis/fcm/v1.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:your_music/constants/key.dart';
 
 import '../../models/song_model.dart';
 import 'notification_service.dart';
@@ -35,6 +37,8 @@ class FirebaseService {
 
   final FirebaseRemoteConfig _remoteConfig;
 
+  final SharedPreferences _sharedPreferences;
+
   FirebaseService({
     required FirebaseFirestore firestore,
     required FirebaseStorage storage,
@@ -43,13 +47,15 @@ class FirebaseService {
     required NotificationService notification,
     required FirebaseCrashlytics crashlytics,
     required FirebaseRemoteConfig remoteConfig,
+    required SharedPreferences sharedPreferences,
   })  : _firestore = firestore,
         _storage = storage,
         _messaging = messaging,
         _auth = auth,
         _notification = notification,
         _crashlytics = crashlytics,
-        _remoteConfig = remoteConfig {
+        _remoteConfig = remoteConfig,
+        _sharedPreferences = sharedPreferences {
     _auth.signInAnonymously();
 
     if (!kIsWeb) {
@@ -77,7 +83,7 @@ class FirebaseService {
     return {};
   }
 
-  bool get isLogin => _auth.currentUser != null;
+  bool get isLogin => _auth.currentUser != null && (_sharedPreferences.getBool(KeyConstant.prefIsLogin) ?? false);
 
   bool get isVoiceAssistantActive => _remoteConfig.getBool('voice_assistant');
 
@@ -87,6 +93,7 @@ class FirebaseService {
       if (data.isEmpty) throw Exception('Error Auth');
 
       if (username == data['username'] && password == data['password']) {
+        _sharedPreferences.setBool(KeyConstant.prefIsLogin, true);
         return true;
       }
 

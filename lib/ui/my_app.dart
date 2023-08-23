@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_music/data/services/firebase_service.dart';
 import 'package:your_music/data/services/notification_service.dart';
 import 'package:your_music/firebase_options.dart';
@@ -46,7 +47,7 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  FirebaseService _getFirebaseService() {
+  Future<FirebaseService> _getFirebaseService() async {
     final firestore = FirebaseFirestore.instance;
     final storage = FirebaseStorage.instance;
     final messaging = FirebaseMessaging.instance;
@@ -54,6 +55,7 @@ class _MyAppState extends State<MyApp> {
     final notification = NotificationService.instance;
     final crashlytics = FirebaseCrashlytics.instance;
     final remoteConfig = FirebaseRemoteConfig.instance;
+    final sharedPreferences = await SharedPreferences.getInstance();
 
     return FirebaseService(
       firestore: firestore,
@@ -63,6 +65,7 @@ class _MyAppState extends State<MyApp> {
       notification: notification,
       crashlytics: crashlytics,
       remoteConfig: remoteConfig,
+      sharedPreferences: sharedPreferences,
     );
   }
 
@@ -87,59 +90,66 @@ class _MyAppState extends State<MyApp> {
         }
 
         if (snapshot.connectionState == ConnectionState.done) {
-          final firebaseService = _getFirebaseService();
-
-          return MultiProvider(
-            providers: [
-              if (kIsWeb)
-                ChangeNotifierProvider(
-                  create: (_) => AuthProvider(firebaseService),
-                ),
-              ChangeNotifierProvider(
-                create: (_) => SongProvider(firebaseService),
-              ),
-            ],
-            builder: (context, child) {
-              return MaterialApp(
-                title: 'Your Music',
-                theme: darkTheme,
-                navigatorKey: navigatorKey,
-                routes: Routes.routes,
-                navigatorObservers: [routeObserver],
-                onGenerateInitialRoutes: (initialRoute) {
-                  // TODO after login, still can redirect to route login
-                  if (kIsWeb) {
-                    bool isLogin = context.read<AuthProvider>().isLogin;
-                    if (!isLogin) {
-                      return Navigator.defaultGenerateInitialRoutes(
-                        Navigator.of(navigatorKey.currentContext!),
-                        Routes.login,
-                      );
-                    }
-                  }
-
-                  return Navigator.defaultGenerateInitialRoutes(
-                    Navigator.of(navigatorKey.currentContext!),
-                    initialRoute,
-                  );
-                },
-                onGenerateRoute: (settings) {
-                  if (settings.name == Routes.favorite) {
-                    return PageRouteBuilder(
-                      settings: settings,
-                      pageBuilder: (_, __, ___) => const Favorite(),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) => CupertinoPageTransition(
-                        primaryRouteAnimation: animation,
-                        secondaryRouteAnimation: secondaryAnimation,
-                        linearTransition: true,
-                        child: child,
+          return FutureBuilder(
+            future: _getFirebaseService(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return MultiProvider(
+                  providers: [
+                    if (kIsWeb)
+                      ChangeNotifierProvider(
+                        create: (_) => AuthProvider(snapshot.data!),
                       ),
-                    );
-                  }
+                    ChangeNotifierProvider(
+                      create: (_) => SongProvider(snapshot.data!),
+                    ),
+                  ],
+                  builder: (context, child) {
+                    final isLogin = context.select((AuthProvider p) => p.isLogin);
+                    return MaterialApp(
+                      title: 'Your Music',
+                      theme: darkTheme,
+                      navigatorKey: navigatorKey,
+                      routes: Routes.routes,
+                      navigatorObservers: [routeObserver],
+                      onGenerateInitialRoutes: (initialRoute) {
+                        if (kIsWeb) {
+                          return Navigator.defaultGenerateInitialRoutes(
+                            Navigator.of(navigatorKey.currentContext!),
+                            !isLogin ? Routes.login : Routes.home,
+                          );
+                        }
 
-                  return null;
-                },
-              );
+                        return Navigator.defaultGenerateInitialRoutes(
+                          Navigator.of(navigatorKey.currentContext!),
+                          initialRoute,
+                        );
+                      },
+                      onGenerateRoute: (settings) {
+                        if (kIsWeb) {
+                          return MaterialPageRoute(builder: Routes.routes[!isLogin ? Routes.login : Routes.home]!);
+                        } else if (settings.name == Routes.favorite) {
+                          return PageRouteBuilder(
+                            settings: settings,
+                            pageBuilder: (_, __, ___) => const Favorite(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+                                CupertinoPageTransition(
+                              primaryRouteAnimation: animation,
+                              secondaryRouteAnimation: secondaryAnimation,
+                              linearTransition: true,
+                              child: child,
+                            ),
+                          );
+                        }
+
+                        return null;
+                      },
+                    );
+                  },
+                );
+              }
+
+              return const SizedBox.shrink();
             },
           );
         }
