@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../../../constants/colors.dart';
 import '../../../providers/song_provider.dart';
 import '../../../utils/device/device_layout.dart';
+import '../../../utils/routes/observer.dart';
+import '../../../utils/routes/routes.dart';
 import 'slivers/sliver_song_delegate.dart';
 import 'slivers/sliver_tab_bar_delegate.dart';
 
@@ -80,6 +82,8 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final songProvider = context.watch<SongProvider>();
+    final isPlaylistLoaded = context.select((SongProvider p) => p.isPlayerLoaded);
+
     _getSong();
     isFavorite = songProvider.favorite.where((element) => element.id == songProvider.detailSong?.id).isNotEmpty;
     return WillPopScope(
@@ -144,9 +148,26 @@ class _DetailState extends State<Detail> with SingleTickerProviderStateMixin {
                     });
                   },
                   playPauseAnimation: _animationController,
-                  onPrevious: songProvider.audioPlayer.hasPrevious ? songProvider.audioPlayer.seekToPrevious : null,
-                  onPlayPause: playAudio,
-                  onNext: songProvider.audioPlayer.hasNext ? songProvider.audioPlayer.seekToNext : null,
+                  onPrevious: songProvider.audioPlayer.hasPrevious && isPlaylistLoaded
+                      ? songProvider.audioPlayer.seekToPrevious
+                      : null,
+                  onPlayPause: () {
+                    if (!isPlaylistLoaded) return;
+
+                    final routes = Observer.route.navStack.fetchAll();
+                    final a = routes.contains(Routes.favorite);
+                    final b = songProvider.isCurrentFavoritePlaylist;
+
+                    if ((a && !b) || (!a && b)) {
+                      songProvider.mediaPlaylistUpdate = true;
+                      songProvider.loadPlayer().whenComplete(() => playAudio());
+                    } else {
+                      playAudio();
+                    }
+                  },
+                  onPlayPauseLoading: !isPlaylistLoaded,
+                  onNext:
+                      songProvider.audioPlayer.hasNext && isPlaylistLoaded ? songProvider.audioPlayer.seekToNext : null,
                 ),
               ),
               SliverPersistentHeader(

@@ -88,6 +88,6 @@ class NotificationService {
     );
 
     final songProvider = navigatorKey.currentContext!.read<SongProvider>();
-    songProvider.loadPlayer();
+    await songProvider.loadPlayer();
   }
 }

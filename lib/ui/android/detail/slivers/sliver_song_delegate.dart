@@ -14,9 +14,10 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
   final ValueChanged<double> sliderOnChanged;
   final Animation<double> playPauseAnimation;
   final VoidCallback? onPrevious;
-  final VoidCallback onPlayPause;
+  final VoidCallback? onPlayPause;
   final VoidCallback? onNext;
   final double maxHeight;
+  final bool onPlayPauseLoading;
 
   const SliverSongDelegate({
     required this.sliderValue,
@@ -26,6 +27,7 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
     required this.onPlayPause,
     required this.onNext,
     required this.maxHeight,
+    required this.onPlayPauseLoading,
   });
 
   static const double _minHeight = 100;
@@ -130,7 +132,9 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
               ),
               IconButton(
                 onPressed: onPlayPause,
-                icon: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: playPauseAnimation),
+                icon: onPlayPauseLoading
+                    ? const SizedBox(width: 25, height: 25, child: Center(child: CircularProgressIndicator()))
+                    : AnimatedIcon(icon: AnimatedIcons.play_pause, progress: playPauseAnimation),
                 iconSize: !isCollapsed ? 40 : 30,
                 color: greyColor,
                 splashRadius: !isCollapsed ? 25 : 20,
@@ -187,7 +191,9 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
                 ),
                 IconButton(
                   onPressed: onPlayPause,
-                  icon: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: playPauseAnimation),
+                  icon: onPlayPauseLoading
+                      ? const SizedBox(width: 25, height: 25, child: Center(child: CircularProgressIndicator()))
+                      : AnimatedIcon(icon: AnimatedIcons.play_pause, progress: playPauseAnimation),
                   iconSize: !isRow ? 40 : 30,
                   color: greyColor,
                   splashRadius: !isRow ? 25 : 20,

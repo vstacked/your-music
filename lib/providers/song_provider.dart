@@ -12,6 +12,8 @@ import 'package:your_music/constants/key.dart';
 import '../data/services/firebase_service.dart';
 import '../models/favorite_model.dart';
 import '../models/song_model.dart';
+import '../utils/routes/observer.dart';
+import '../utils/routes/routes.dart';
 
 class SongProvider extends ChangeNotifier {
   final FirebaseService _firebaseService;
@@ -66,6 +68,21 @@ class SongProvider extends ChangeNotifier {
   List<SongModel> _playlistSource = [];
 
   int sourceAudioIndex(String id) => _playlistSource.indexWhere((element) => element.id == id);
+
+  bool _isPlayerLoaded = false;
+
+  bool get isPlayerLoaded => _isPlayerLoaded;
+
+  bool _isCurrentFavoritePlaylist = false;
+
+  bool get isCurrentFavoritePlaylist => _isCurrentFavoritePlaylist;
+
+  bool _mediaPlaylistUpdate = false;
+
+  set mediaPlaylistUpdate(value) {
+    _mediaPlaylistUpdate = value;
+    notifyListeners();
+  }
 
   bool get isOpen => _openedSong != null;
 
@@ -185,10 +202,34 @@ class SongProvider extends ChangeNotifier {
 
   Future<void> loadPlayer() async {
     try {
+      _isPlayerLoaded = false;
+      notifyListeners();
+
       final snapshot = await _firebaseService.fetchSongsAsync();
       _playlistSource = snapshot.docs
           .map((e) => SongModel.fromJson(Map.from(e.data() as LinkedHashMap)..remove('created_at'))..id = e.id)
           .toList();
+
+      final routes = Observer.route.navStack.fetchAll();
+      final isContainsFavoritePage = routes.contains(Routes.favorite);
+      if (isContainsFavoritePage) {
+        _playlistSource = [
+          ...favorite.map((e) {
+            final x = _playlistSource.where((element) => element.id == e.id);
+            return x.isNotEmpty
+                ? x.first
+                : SongModel(
+                    id: e.id,
+                    thumbnailUrl: e.thumbnail,
+                    title: e.title,
+                    singer: e.singer,
+                    fileDetail: FileDetail(duration: e.duration),
+                  );
+          }).toList()
+        ];
+      }
+      _isCurrentFavoritePlaylist = isContainsFavoritePage;
+      notifyListeners();
 
       await audioPlayer.setAudioSource(
         ConcatenatingAudioSource(
@@ -205,16 +246,29 @@ class SongProvider extends ChangeNotifier {
 
       await audioPlayer.load();
       audioPlayer.sequenceStateStream.listen((event) {
-        if (event != null) {
+        if (event != null && !_mediaPlaylistUpdate) {
           if (audioPlayer.playing) {
             playedSong = _playlistSource[event.currentIndex];
           }
           detailSong = _playlistSource[event.currentIndex];
+        } else if (_mediaPlaylistUpdate) {
+          audioPlayer.seek(Duration.zero, index: sourceAudioIndex(detailSong!.id)).then((_) => audioPlayer.play());
         }
       });
       audioPlayer.playingStream.listen((isPlaying) {
-        if (isPlaying && detailSong != null) playedSong = detailSong;
+        if (isPlaying && detailSong != null && !_mediaPlaylistUpdate) {
+          playedSong = detailSong;
+        } else if (_mediaPlaylistUpdate) {
+          audioPlayer.seek(Duration.zero, index: sourceAudioIndex(detailSong!.id)).then((_) => audioPlayer.play());
+        }
       });
+
+      Future.delayed(const Duration(seconds: 1)).whenComplete(() {
+        _mediaPlaylistUpdate = false;
+        notifyListeners();
+      });
+
+      _isPlayerLoaded = true;
       notifyListeners();
     } catch (e, s) {
       recordError(e, s);
