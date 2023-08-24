@@ -58,6 +58,7 @@ dependencies:
   firebase_remote_config: ^4.2.4
   firebase_analytics: ^10.4.4
   firebase_performance: ^0.9.2+4
+  google_fonts: ^5.1.0
 
 dev_dependencies:
   build_runner: ^2.4.6

@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:alan_voice/alan_voice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_music/constants/key.dart';
@@ -28,12 +29,17 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   bool isVoiceAssistantActive = false;
 
+  final loopModeNotifier = ValueNotifier(LoopMode.off);
+  final shuffleModeNotifier = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
     final provider = context.read<SongProvider>();
-    provider.loadPlayer();
-    isVoiceAssistantActive = provider.isVoiceAssistantActive;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      provider.loadPlayer();
+      isVoiceAssistantActive = provider.isVoiceAssistantActive;
+    });
 
     if (isVoiceAssistantActive) _setupVoiceAssistant();
     _checkNotification();
@@ -66,6 +72,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
+    final showBottomBar = context.select((SongProvider p) => p.playedSong != null);
     return Stack(
       children: [
         Scaffold(
@@ -74,13 +81,7 @@ class _HomeState extends State<Home> {
             elevation: 0,
             actions: [
               if (isVoiceAssistantActive) const VoiceAssistantCommandInfo(),
-              IconButton(
-                onPressed: () => Navigator.pushNamed(context, Routes.favorite),
-                icon: const Icon(Icons.favorite),
-                iconSize: 30,
-                color: greyColor,
-                splashRadius: 25,
-              )
+              _IconButton(icon: Icons.favorite, onPressed: () => Navigator.pushNamed(context, Routes.favorite))
             ],
           ),
           body: CustomScrollView(
@@ -88,9 +89,61 @@ class _HomeState extends State<Home> {
               SliverPadding(
                 padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                 sliver: SliverToBoxAdapter(
-                  child: Text(
-                    'SONG',
-                    style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w600),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'SONG',
+                        style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      Row(
+                        children: [
+                          ValueListenableBuilder(
+                            valueListenable: loopModeNotifier,
+                            builder: (context, mode, _) => _IconButton(
+                              icon: () {
+                                switch (mode) {
+                                  case LoopMode.all:
+                                    return Icons.repeat_on_outlined;
+                                  case LoopMode.one:
+                                    return Icons.repeat_one_on_outlined;
+                                  default:
+                                    return Icons.repeat;
+                                }
+                              }(),
+                              onPressed: () {
+                                LoopMode m = mode;
+
+                                switch (m) {
+                                  case LoopMode.all:
+                                    m = LoopMode.one;
+                                    break;
+                                  case LoopMode.one:
+                                    m = LoopMode.off;
+                                    break;
+                                  default:
+                                    m = LoopMode.all;
+                                    break;
+                                }
+
+                                loopModeNotifier.value = m;
+                                context.read<SongProvider>().setLoopMode(m);
+                              },
+                            ),
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: shuffleModeNotifier,
+                            builder: (context, shuffled, _) => _IconButton(
+                              icon: shuffled ? Icons.shuffle_on_outlined : Icons.shuffle_outlined,
+                              onPressed: () {
+                                shuffleModeNotifier.value = !shuffled;
+                                context.read<SongProvider>().setShuffleMode(!shuffled);
+                              },
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
                 ),
               ),
@@ -158,11 +211,30 @@ class _HomeState extends State<Home> {
                   return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
                 },
               ),
+              if (showBottomBar) const SliverToBoxAdapter(child: SizedBox(height: 120))
             ],
           ),
         ),
-        if (context.watch<SongProvider>().playedSong != null) BottomBar(padding: isTablet(context) ? 48 : 16),
+        if (showBottomBar) BottomBar(padding: isTablet(context) ? 48 : 16),
       ],
+    );
+  }
+}
+
+class _IconButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final IconData icon;
+
+  const _IconButton({required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      iconSize: 30,
+      color: greyColor,
+      splashRadius: 25,
     );
   }
 }

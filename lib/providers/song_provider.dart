@@ -179,7 +179,11 @@ class SongProvider extends ChangeNotifier {
 
   Stream<QuerySnapshot> fetchSongs() => _firebaseService.fetchSongs();
 
-  void loadPlayer() async {
+  void setLoopMode(LoopMode mode) => audioPlayer.setLoopMode(mode);
+
+  void setShuffleMode(bool enabled) => audioPlayer.setShuffleModeEnabled(enabled);
+
+  Future<void> loadPlayer() async {
     try {
       final snapshot = await _firebaseService.fetchSongsAsync();
       _playlistSource = snapshot.docs

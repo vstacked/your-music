@@ -48,14 +48,24 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<FirebaseService> _getFirebaseService() async {
-    final firestore = FirebaseFirestore.instance;
-    final storage = FirebaseStorage.instance;
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    FirebaseStorage storage = FirebaseStorage.instance;
     final messaging = FirebaseMessaging.instance;
     final auth = FirebaseAuth.instance;
     final notification = NotificationService.instance;
     final crashlytics = FirebaseCrashlytics.instance;
     final remoteConfig = FirebaseRemoteConfig.instance;
     final sharedPreferences = await SharedPreferences.getInstance();
+
+    const useLocalEnvironment = false;
+    if (useLocalEnvironment) {
+      // const host = kIsWeb ? '127.0.0.1' : '10.0.2.2';
+      const host = '127.0.0.1';
+      const setting = Settings(persistenceEnabled: true);
+      firestore.useFirestoreEmulator(host, 8080);
+      firestore.settings = setting;
+      storage.useStorageEmulator(host, 9199);
+    }
 
     return FirebaseService(
       firestore: firestore,
@@ -76,7 +86,7 @@ class _MyAppState extends State<MyApp> {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return MaterialApp(
-            theme: darkTheme,
+            theme: buildTheme(),
             title: 'Your Music',
             home: Scaffold(
               body: Center(
@@ -105,10 +115,10 @@ class _MyAppState extends State<MyApp> {
                     ),
                   ],
                   builder: (context, child) {
-                    final isLogin = context.select((AuthProvider p) => p.isLogin);
+                    final isLogin = kIsWeb ? context.select((AuthProvider p) => p.isLogin) : false;
                     return MaterialApp(
                       title: 'Your Music',
-                      theme: darkTheme,
+                      theme: buildTheme(),
                       navigatorKey: navigatorKey,
                       routes: Routes.routes,
                       navigatorObservers: [routeObserver],
