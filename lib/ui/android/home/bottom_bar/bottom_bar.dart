@@ -74,10 +74,10 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
           child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [secondaryColor.withOpacity(.25), secondaryColor],
+                colors: [secondaryColor.withOpacity(.005), secondaryColor],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                stops: const [.05, .75],
+                stops: const [.15, 1],
               ),
             ),
             child: const SizedBox(height: 170, width: double.infinity),

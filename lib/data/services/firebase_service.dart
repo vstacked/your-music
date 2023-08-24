@@ -145,7 +145,7 @@ class FirebaseService {
 
       final thumbnailUrl = await thumbnail.ref.getDownloadURL();
 
-      await collection.add({
+      final map = {
         'title': songModel.title,
         'singer': songModel.singer,
         'file_detail': {
@@ -154,11 +154,12 @@ class FirebaseService {
           'duration': songDuration,
         },
         'thumbnail_url': thumbnailUrl,
-        'lyric': songModel.lyric,
-        'description': songModel.description,
+        'lyric': jsonEncode(songModel.lyric),
+        'description': jsonEncode(songModel.description),
         'created_at': DateTime.now().toLocal(),
         'active': true,
-      });
+      };
+      await collection.add(map);
 
       await audioPlayer.dispose();
 
@@ -178,12 +179,13 @@ class FirebaseService {
 
       final AudioPlayer audioPlayer = AudioPlayer();
 
-      await collection.doc(songModel.id).update({
+      final map = {
         'title': songModel.title,
         'singer': songModel.singer,
-        'lyric': songModel.lyric,
-        'description': songModel.description,
-      });
+        'lyric': jsonEncode(songModel.lyric),
+        'description': jsonEncode(songModel.description),
+      };
+      await collection.doc(songModel.id).update(map);
 
       // update song
       if (songModel.songPlatformFile != null) {

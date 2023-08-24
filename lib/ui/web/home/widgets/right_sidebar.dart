@@ -228,7 +228,6 @@ class _DetailSongState extends State<_DetailSong> with SingleTickerProviderState
             moreStyle: textTheme.bodyMedium!.copyWith(color: blueColor),
             trimCollapsedText: 'more',
             trimExpandedText: 'less',
-            textAlign: TextAlign.justify,
           ),
         ),
       ],

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:file_picker/file_picker.dart';
 
 abstract class _BaseModel<T> {
@@ -48,9 +50,9 @@ class SongModel extends _BaseModel<SongModel> {
         fileDetail: json['file_detail'] == null ? null : FileDetail.fromJson(json['file_detail']),
         title: json['title'],
         singer: json['singer'],
-        lyric: json['lyric'],
+        lyric: jsonDecode(json['lyric']),
         thumbnailUrl: json['thumbnail_url'],
-        description: json['description'],
+        description: jsonDecode(json['description']),
       );
 
   @override
