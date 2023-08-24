@@ -211,7 +211,7 @@ class _HomeState extends State<Home> {
                   return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
                 },
               ),
-              if (showBottomBar) const SliverToBoxAdapter(child: SizedBox(height: 120))
+              if (showBottomBar) const SliverToBoxAdapter(child: SizedBox(height: 140))
             ],
           ),
         ),
