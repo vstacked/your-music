@@ -40,6 +40,7 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final size = MediaQuery.of(context).size;
     final TextTheme textTheme = Theme.of(context).textTheme;
     final songProvider = context.watch<SongProvider>();
     double percent = shrinkOffset / (maxExtent - minExtent);
@@ -70,6 +71,7 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
                       textTheme,
                       circleRadius,
                       isCollapsed,
+                      size,
                     ),
                   )
                 : Column(
@@ -78,6 +80,7 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
                       textTheme,
                       circleRadius,
                       isCollapsed,
+                      size,
                     ),
                   ),
           ),
@@ -151,26 +154,33 @@ class SliverSongDelegate extends SliverPersistentHeaderDelegate {
         ],
       );
 
-  List<Widget> children(SongModel? song, TextTheme textTheme, double circleRadius, bool isRow) => <Widget>[
+  List<Widget> children(SongModel? song, TextTheme textTheme, double circleRadius, bool isRow, Size size) => <Widget>[
         const Spacer(),
         CircleAvatar(
           radius: circleRadius,
           backgroundImage: song != null ? NetworkImage(song.thumbnailUrl) : null,
         ),
         const Spacer(),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              song?.title ?? '-',
-              style: textTheme.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              song?.singer ?? '-',
-              style: textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
-            )
-          ],
+        SizedBox(
+          width: isRow ? size.width / 3 : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                song?.title ?? '-',
+                style: textTheme.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.w600, color: greyColor),
+                maxLines: isRow ? 1 : null,
+                overflow: isRow ? TextOverflow.ellipsis : null,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                song?.singer ?? '-',
+                style: textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w600, color: greyColor),
+                maxLines: isRow ? 1 : null,
+                overflow: isRow ? TextOverflow.ellipsis : null,
+              )
+            ],
+          ),
         ),
         const Spacer(),
         if (!isRow) const Padding(padding: EdgeInsets.symmetric(horizontal: 13), child: SeekBar()),
