@@ -79,6 +79,9 @@ class NotificationService {
   Future<void> show({required RemoteMessage message}) async {
     if (message.notification == null) return;
 
+    final songProvider = navigatorKey.currentContext!.read<SongProvider>();
+    await songProvider.loadPlayer();
+
     _flutterLocalNotificationsPlugin.show(
       message.notification.hashCode,
       message.notification!.title,
@@ -86,8 +89,5 @@ class NotificationService {
       _notificationDetails,
       payload: jsonEncode(message.data),
     );
-
-    final songProvider = navigatorKey.currentContext!.read<SongProvider>();
-    await songProvider.loadPlayer();
   }
 }

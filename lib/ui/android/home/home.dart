@@ -35,14 +35,14 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    final provider = context.read<SongProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<SongProvider>();
       provider.loadPlayer();
       isVoiceAssistantActive = provider.isVoiceAssistantActive;
-    });
 
-    if (isVoiceAssistantActive) _setupVoiceAssistant();
-    _checkNotification();
+      if (isVoiceAssistantActive) _setupVoiceAssistant();
+      _checkNotification();
+    });
   }
 
   void _checkNotification() async {
@@ -56,6 +56,11 @@ class _HomeState extends State<Home> {
     final data = prefs.getString(KeyConstant.prefNotification);
     if (data == null) return;
 
+    if (mounted) {
+      final provider = context.read<SongProvider>();
+      await provider.loadPlayer();
+    }
+
     final notification = NotificationService.instance;
     notification.selectNotification(data);
 
@@ -67,6 +72,7 @@ class _HomeState extends State<Home> {
 
     final provider = context.read<SongProvider>();
     AlanVoice.callbacks.add((command) => provider.voiceAssistantAction(command.data));
+    setState(() {});
   }
 
   @override
